@@ -119,9 +119,13 @@ class LoginScreen extends StatelessWidget {
                         ),
                       ),
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => RootTab()),
+                          MaterialPageRoute(
+                            builder: (context) {
+                              return RootTab();
+                            },
+                          ),
                         );
                       },
                       child: Text(
