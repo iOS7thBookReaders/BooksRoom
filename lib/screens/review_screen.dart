@@ -185,7 +185,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       style: TextStyle(color: Colors.grey),
                     ),
                   ), // 한 줄 평 입력 섹션
-                  const SizedBox(height: 24.0),
+                  const SizedBox(height: 8.0),
 
                   // 별점 섹션
                   const Text(
@@ -212,7 +212,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       );
                     }),
                   ),
+                  const SizedBox(height: 24.0),
                 ],
+              ),
+            ),
+          ),
+
+          // 저장 버튼
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                onPressed: _saveReview,
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16.0),
+                  backgroundColor: Colors.grey.shade300,
+                ),
+                child: const Text(
+                  '저장하기',
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
           ),
