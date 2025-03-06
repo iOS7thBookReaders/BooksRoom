@@ -1,3 +1,4 @@
+import 'package:books_room/color.dart';
 import 'package:flutter/material.dart';
 
 class ReviewScreen extends StatefulWidget {
@@ -227,12 +228,12 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 onPressed: _saveReview,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  backgroundColor: Colors.grey.shade300,
+                  backgroundColor: MAIN_COLOR,
                 ),
                 child: const Text(
                   '저장하기',
                   style: TextStyle(
-                    color: Colors.black,
+                    color: Colors.white,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
