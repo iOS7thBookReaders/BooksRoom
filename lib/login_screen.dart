@@ -1,6 +1,7 @@
 import 'package:books_room/color.dart';
 import 'package:flutter/material.dart';
 
+import 'root_tab.dart';
 import 'sign_up_screen.dart';
 
 class LoginScreen extends StatelessWidget {
@@ -23,22 +24,23 @@ class LoginScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
               ),
             ),
-            SizedBox(height: 50),
+            SizedBox(height: 30),
             TextField(
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
-                hintText: 'Email',
+                hintText: 'test@test.com',
                 hintStyle: TextStyle(color: GRAY500),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -54,15 +56,15 @@ class LoginScreen extends StatelessWidget {
                 hintStyle: TextStyle(color: GRAY500),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: MAIN_COLOR),
+                  borderSide: BorderSide(color: GRAY900),
                 ),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 12,
@@ -119,9 +121,7 @@ class LoginScreen extends StatelessWidget {
                       onPressed: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => SignUpScreen(),
-                          ),
+                          MaterialPageRoute(builder: (context) => RootTab()),
                         );
                       },
                       child: Text(

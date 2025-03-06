@@ -41,22 +41,24 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 50),
                     Row(children: [Text('이메일'), Spacer()]),
+                    SizedBox(height: 5),
                     TextField(
+                      keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'test@test.com',
                         helperText: '이메일을 입력해주세요.',
                         hintStyle: TextStyle(color: GRAY500),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -66,7 +68,7 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     Row(children: [Text('비밀번호'), Spacer()]),
-
+                    SizedBox(height: 5),
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
@@ -75,15 +77,15 @@ class SignUpScreen extends StatelessWidget {
                         hintStyle: TextStyle(color: GRAY500),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -93,7 +95,7 @@ class SignUpScreen extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     Row(children: [Text('비밀번호 확인'), Spacer()]),
-
+                    SizedBox(height: 5),
                     TextField(
                       obscureText: true,
                       decoration: InputDecoration(
@@ -102,15 +104,15 @@ class SignUpScreen extends StatelessWidget {
                         hintStyle: TextStyle(color: GRAY500),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: MAIN_COLOR),
+                          borderSide: BorderSide(color: GRAY900),
                         ),
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 12,
@@ -137,10 +139,7 @@ class SignUpScreen extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => SignUpScreen()),
-                  );
+                  Navigator.pop(context);
                 },
                 child: Text(
                   '회원가입',
