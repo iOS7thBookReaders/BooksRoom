@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     final bookProvider = Provider.of<BookProvider>(context);
-    final bookData = bookProvider.bookData;
+    final booksBestsellerData = bookProvider.booksBestsellerData;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 indicatorSize: TabBarIndicatorSize.tab,
                 labelColor: SUB_DARK_BROWN_COLOR,
                 unselectedLabelColor: GRAY500,
-                controller: tabController, // TabController를 TabBar에 연결
+                controller: tabController,
                 tabs: const [
                   Tab(text: '베스트셀러'),
                   Tab(text: '읽는중'),
@@ -99,9 +99,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ? const Center(
                   child: CircularProgressIndicator(color: MAIN_COLOR),
                 )
-                : bookData == null
+                : booksBestsellerData == null
                 ? Center(child: Text('데이터가 없습니다.'))
-                : buildBestSellerListView(bookData),
+                : buildBestSellerListView(booksBestsellerData),
             buildReadingListView(),
             buildFavoriteListView(),
           ],
@@ -151,7 +151,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget buildBestSellerListView(BookResponse bookData) {
-    print(bookData.items?.length);
     return Container(
       child: SingleChildScrollView(
         child: Column(
