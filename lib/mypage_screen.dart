@@ -25,12 +25,14 @@ class MypageScreen extends StatelessWidget {
                 // 사용자 ID와 ISBN 더미데이터
                 String userId = 'test123@gmail.com';
                 String isbn13 = '9791193992258';
+                print('리뷰 화면 이동 시작 - 사용자: $userId, ISBN: $isbn13');
 
                 // 책 정보 가져오기
                 final bookStream = reviewFirebaseService.getBookByIsbn(isbn13);
 
                 // 스트림에서 첫 번째 이벤트(책 정보)를 가져옴
                 final bookModel = await bookStream.first;
+                print('가져온 책 정보: ${bookModel?.title ?? "정보 없음"}');
 
                 if (bookModel != null) {
                   // 책 정보가 있으면 리뷰 화면으로 이동

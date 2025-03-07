@@ -27,6 +27,7 @@ class ReviewFirebaseService {
     final userId = currentUserId;
     print('현재 사용자 ID: $userId');
     if (userId == null) return null;
+    print('접근하는 컬렉션 경로: users/$userId/books');
     return getBooksCollection(userId);
   }
 
@@ -45,14 +46,19 @@ class ReviewFirebaseService {
   // 특정 책 상세 정보 가져오기
   Stream<BookModel?> getBookByIsbn(String isbn13) {
     final booksRef = currentUserBooks;
+    print('특정 책 정보 요청 - ISBN: $isbn13');
     if (booksRef == null) {
+      print('사용자 컬렉션 참조 없음 - 로그인 상태 확인 필요');
       return Stream.value(null);
     }
 
     return booksRef.doc(isbn13).snapshots().map((snapshot) {
+      print('Firestore 문서 존재 여부: ${snapshot.exists}');
       if (snapshot.exists) {
+        print('Firestore에서 가져온 데이터: ${snapshot.data()}');
         return BookModel.fromFirestore(snapshot);
       } else {
+        print('ISBN $isbn13에 해당하는 책을 찾을 수 없음');
         return null;
       }
     });
@@ -72,11 +78,18 @@ class ReviewFirebaseService {
   // 책 정보 업데이트하기
   Future<void> updateBook(BookModel book) async {
     final booksRef = currentUserBooks;
+    print('책 정보 업데이트 시작 - ISBN: ${book.isbn13}');
     if (booksRef == null) {
+      print('사용자 컬렉션 참조 없음 - 업데이트 불가');
       throw Exception('사용자가 로그인되어 있지 않습니다.');
     }
 
-    return booksRef.doc(book.isbn13).update(book.toFirestore());
+    print('업데이트할 데이터: ${book.toFirestore()}');
+    return booksRef
+        .doc(book.isbn13)
+        .update(book.toFirestore())
+        .then((_) => print('업데이트 성공 - ISBN: ${book.isbn13}'))
+        .catchError((error) => print('업데이트 실패: $error'));
   }
 
   // 책 삭제하기

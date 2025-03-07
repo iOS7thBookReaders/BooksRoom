@@ -37,6 +37,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   @override
   void initState() {
     super.initState();
+    print('리뷰 화면 초기화 - 책 제목: ${widget.bookModel.title}');
 
     // 컨트롤러 초기화
     reviewController = TextEditingController();
@@ -44,6 +45,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
     // 기존 리뷰 정보가 있으면 로드
     if (widget.bookModel.review != null) {
+      print('기존 리뷰 정보 로드: ${widget.bookModel.review}');
       reviewController.text = widget.bookModel.review ?? '';
     }
 
@@ -79,7 +81,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
   // 리뷰 저장 메서드
   void _saveReview() async {
+    print('리뷰 저장 시작');
     try {
+      print('저장할 한줄평: ${oneLineCommentController.text}');
+      print('저장할 별점: $starRating');
+
       // 현재 입력된 리뷰 정보로 책 모델 업데이트
       final updatedBook = BookModel(
         isbn13: widget.bookModel.isbn13,
@@ -98,6 +104,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
 
       // 파이어베이스에 업데이트
       await widget.firebaseService.updateBook(updatedBook);
+      print('파이어베이스 업데이트 완료');
 
       // 저장 완료 후 알림
       ScaffoldMessenger.of(
@@ -107,6 +114,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
       // 이전 화면으로 돌아가기
       Navigator.pop(context);
     } catch (e) {
+      print('리뷰 저장 중 오류 발생: $e');
       // 에러 발생 시 처리
       ScaffoldMessenger.of(
         context,
