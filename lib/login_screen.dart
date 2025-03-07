@@ -3,9 +3,60 @@ import 'package:flutter/material.dart';
 
 import 'root_tab.dart';
 import 'sign_up_screen.dart';
+import 'package:books_room/services/auth_service.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // 컨트롤러
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final AuthService _authService = AuthService();
+
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  // 로그인 함수
+  Future<void> _signIn() async {
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // AuthService를 사용하여 로그인
+      await _authService.signInWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      // 로그인 성공시 루트탭으로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const RootTab()),
+      );
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +76,26 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 30),
+
+            // 오류 메시지 표시
+            if (_errorMessage != null)
+              Container(
+                padding: EdgeInsets.all(10),
+                margin: EdgeInsets.only(bottom: 20),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Text(
+                  _errorMessage!,
+                  style: TextStyle(color: Colors.red),
+                ),
+              ),
+
+            // 이메일 입력 섹션
             TextField(
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 hintText: 'test@test.com',
@@ -49,7 +119,10 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 10),
+
+            // 비밀번호 입력 섹션
             TextField(
+              controller: _passwordController,
               obscureText: true,
               decoration: InputDecoration(
                 hintText: 'Password',
@@ -73,8 +146,11 @@ class LoginScreen extends StatelessWidget {
               ),
             ),
             SizedBox(height: 20),
+
+            // 버튼 섹션
             Row(
               children: [
+                // 회원가입 버튼
                 Expanded(
                   child: SizedBox(
                     height: 50,
@@ -106,6 +182,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                 ),
                 SizedBox(width: 10),
+                // 로그인 버튼
                 Expanded(
                   child: SizedBox(
                     height: 50,
@@ -118,23 +195,17 @@ class LoginScreen extends StatelessWidget {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return RootTab();
-                            },
-                          ),
-                        );
-                      },
-                      child: Text(
-                        '로그인',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
+                      onPressed: _isLoading ? null : _signIn,
+                      child:
+                          _isLoading
+                              ? CircularProgressIndicator(color: Colors.white)
+                              : Text(
+                                '로그인',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                     ),
                   ),
                 ),

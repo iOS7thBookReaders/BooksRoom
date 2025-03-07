@@ -16,7 +16,7 @@ class AuthService {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
-      print('회원가입 성공 $email');
+      print('회원가입 성공: $email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
@@ -33,6 +33,7 @@ class AuthService {
         email: email,
         password: password,
       );
+      print('로그인 성공: $email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);
