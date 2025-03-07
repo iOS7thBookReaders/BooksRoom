@@ -5,21 +5,47 @@ import 'package:flutter/material.dart';
 import '../models/book_response.dart';
 import 'format.dart';
 
-class BookListCell extends StatelessWidget {
+class BookListCell extends StatefulWidget {
   final BookItem bookItem;
-  const BookListCell({super.key, required this.bookItem});
+  final String imageUrl;
+
+  const BookListCell({
+    super.key,
+    required this.bookItem,
+    this.imageUrl = 'https://picsum.photos/seed/picsum/80/100',
+  });
+
+  @override
+  State<BookListCell> createState() => _BookListCellState();
+}
+
+class _BookListCellState extends State<BookListCell> {
+  late Future<Image> _imageFuture;
+  Future<Image> loadImage() async {
+    try {
+      return Image.network(widget.imageUrl);
+    } catch (e) {
+      throw Exception("Image loading failed");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _imageFuture = loadImage();
+  }
 
   @override
   Widget build(BuildContext context) {
     Format format = Format();
 
-    String isbn13 = bookItem.isbn13 ?? '';
-    String title = bookItem.title ?? '';
-    String author = bookItem.author ?? '';
-    String pubdate = bookItem.pubDate ?? '';
-    String publisher = bookItem.publisher ?? '';
-    String cover = bookItem.cover ?? '';
-    String categoryName = bookItem.categoryName ?? '';
+    String isbn13 = widget.bookItem.isbn13 ?? '';
+    String title = widget.bookItem.title ?? '';
+    String author = widget.bookItem.author ?? '';
+    String pubdate = widget.bookItem.pubDate ?? '';
+    String publisher = widget.bookItem.publisher ?? '';
+    String cover = widget.bookItem.cover ?? '';
+    String categoryName = widget.bookItem.categoryName ?? '';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
@@ -38,11 +64,24 @@ class BookListCell extends StatelessWidget {
             },
             child: Row(
               children: [
-                Image.network(
-                  cover,
-                  width: 80,
-                  height: 100,
-                  fit: BoxFit.fitHeight,
+                FutureBuilder<Image>(
+                  future: _imageFuture,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return CircularProgressIndicator();
+                    } else if (snapshot.hasError) {
+                      return Icon(Icons.error, color: MAIN_COLOR);
+                    } else if (snapshot.hasData) {
+                      return Image.network(
+                        cover,
+                        width: 80,
+                        height: 100,
+                        fit: BoxFit.fitHeight,
+                      );
+                    } else {
+                      return Icon(Icons.error, color: MAIN_COLOR);
+                    }
+                  },
                 ),
                 SizedBox(width: 10),
                 Expanded(
@@ -85,8 +124,13 @@ class BookListCell extends StatelessWidget {
                       SizedBox(height: 4),
                       Row(
                         children: [
-                          Text(author, style: TextStyle(fontSize: 12)),
-                          Spacer(),
+                          Expanded(
+                            child: Text(
+                              author,
+                              style: TextStyle(fontSize: 12),
+                              maxLines: 2,
+                            ),
+                          ),
                         ],
                       ),
 
