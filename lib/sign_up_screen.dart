@@ -1,9 +1,73 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 import 'color.dart';
+import 'package:books_room/services/auth_service.dart';
 
-class SignUpScreen extends StatelessWidget {
+class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
+
+  @override
+  State<SignUpScreen> createState() => _SignUpScreenState();
+}
+
+class _SignUpScreenState extends State<SignUpScreen> {
+  // 컨트롤러
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  final AuthService _authService = AuthService();
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  @override
+  void dispose() {
+    // 컨트롤러 해제
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  // 회원가입 함수
+  Future<void> _signUp() async {
+    // 비밀번호 확인 검증
+    if (_passwordController.text != _confirmPasswordController.text) {
+      setState(() {
+        _errorMessage = "비밀번호가 일치하지 않습니다.";
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // AuthService를 사용하여 회원가입
+      await _authService.signUpWithEmailAndPassword(
+        _emailController.text.trim(),
+        _passwordController.text.trim(),
+      );
+
+      // 회원가입 성공 알림
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('회원가입에 성공했습니다. 로그인해주세요.')));
+
+      Navigator.pop(context); // 성공하면 이전 화면으로 돌아가기
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+      });
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,9 +104,28 @@ class SignUpScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 50),
+
+                    // 오류 메시지 표시
+                    if (_errorMessage != null)
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+
+                    // 이메일 입력 섹션
                     Row(children: [Text('이메일'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'test@test.com',
@@ -67,9 +150,12 @@ class SignUpScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 10),
+
+                    // 비밀번호 입력 섹션
                     Row(children: [Text('비밀번호'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Password',
@@ -94,9 +180,12 @@ class SignUpScreen extends StatelessWidget {
                       ),
                     ),
                     SizedBox(height: 10),
+
+                    // 비밀번호 확인 입력 섹션
                     Row(children: [Text('비밀번호 확인'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _confirmPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         helperText: '비밀번호를 한번 더 입력해주세요.',
@@ -126,6 +215,8 @@ class SignUpScreen extends StatelessWidget {
                 ),
               ),
             ),
+
+            // 회원가입 버튼 섹션
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -138,13 +229,17 @@ class SignUpScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  '회원가입',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                onPressed: _isLoading ? null : _signUp,
+                child:
+                    _isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                          '회원가입',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
               ),
             ),
             SizedBox(height: 30),
