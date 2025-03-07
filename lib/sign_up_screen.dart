@@ -133,7 +133,7 @@ class SignUpScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   elevation: 0,
                   foregroundColor: Colors.white,
-                  backgroundColor: SUB_DARK_BROWN_COLOR,
+                  backgroundColor: MAIN_COLOR,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

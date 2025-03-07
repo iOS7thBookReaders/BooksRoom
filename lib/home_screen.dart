@@ -1,8 +1,11 @@
 import 'package:books_room/color.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:provider/provider.dart';
 
+import 'book_list_cell.dart';
+import 'book_provider.dart';
+import 'book_response.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +25,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_onScroll);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final bookProvider = Provider.of<BookProvider>(context, listen: false);
+      bookProvider.fetchBookBestseller();
+    });
   }
 
   void _onScroll() {
@@ -51,6 +58,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    final bookProvider = Provider.of<BookProvider>(context);
+    final bookData = bookProvider.bookData;
+
     return Scaffold(
       backgroundColor: Colors.white,
       body: NestedScrollView(
@@ -67,7 +77,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               pinned: true,
               bottom: TabBar(
                 indicatorColor: MAIN_COLOR,
-                labelColor: MAIN_COLOR,
+                indicatorSize: TabBarIndicatorSize.tab,
+                labelColor: SUB_DARK_BROWN_COLOR,
                 unselectedLabelColor: GRAY500,
                 controller: tabController, // TabController를 TabBar에 연결
                 tabs: const [
@@ -82,9 +93,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         body: TabBarView(
           controller: tabController, // TabController를 TabBarView에 연결
           children: [
-            _buildBestSellerListView(),
-            _buildReadingListView(),
-            _buildFavoriteListView(),
+            bookProvider.isLoading
+                ? const Center(
+                  child: CircularProgressIndicator(color: MAIN_COLOR),
+                )
+                : bookData == null
+                ? Center(child: Text('데이터가 없습니다.'))
+                : buildBestSellerListView(bookData),
+            buildReadingListView(),
+            buildFavoriteListView(),
           ],
         ),
       ),
@@ -109,12 +126,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                       key: ValueKey(1),
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.search, color: Colors.white),
+                        Icon(Icons.search, color: SUB_DARK_BROWN_COLOR),
                         SizedBox(width: 8),
                         Text(
                           "책 검색",
                           style: TextStyle(
-                            color: Colors.white,
+                            color: SUB_DARK_BROWN_COLOR,
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
                           ),
@@ -123,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                     )
                     : const Center(
                       key: ValueKey(2),
-                      child: Icon(Icons.ios_share, color: Colors.white),
+                      child: Icon(Icons.search, color: SUB_DARK_BROWN_COLOR),
                     ),
           ),
         ),
@@ -131,16 +148,45 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildBestSellerListView() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ListTile(title: Text('베스트셀러 $index'));
-      },
+  Widget buildBestSellerListView(BookResponse bookData) {
+    print(bookData.items?.length);
+    return Container(
+      child: SingleChildScrollView(
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: Text(
+                '이번주 베스트셀러',
+                style: TextStyle(
+                  color: POINT_COLOR,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            if (bookData.items != null)
+              Column(
+                children:
+                    bookData.items!.map((bookItem) {
+                      return BookListCell(bookItem: bookItem);
+                    }).toList(),
+              ),
+          ],
+        ),
+      ),
     );
+
+    // ListView.builder(
+    //   shrinkWrap: true,
+    //   itemCount: bookData.items?.length,
+    //   itemBuilder: (context, index) {
+    //     return BookListCell(bookItem: bookData.items![index]);
+    //   },
+    // );
   }
 
-  Widget _buildReadingListView() {
+  Widget buildReadingListView() {
     return ListView.builder(
       itemCount: 10,
       itemBuilder: (context, index) {
@@ -149,7 +195,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget _buildFavoriteListView() {
+  Widget buildFavoriteListView() {
     return ListView.builder(
       itemCount: 10,
       itemBuilder: (context, index) {
