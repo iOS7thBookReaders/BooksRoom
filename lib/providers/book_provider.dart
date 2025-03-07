@@ -1,10 +1,10 @@
 // ignore_for_file: avoid_print
 
-import 'package:books_room/api_service.dart';
+import 'package:books_room/services/api_service.dart';
 import 'package:books_room/key.dart';
 import 'package:flutter/material.dart';
-import 'book_request.dart';
-import 'book_response.dart';
+import 'package:books_room/models/book_request.dart';
+import 'package:books_room/models/book_response.dart';
 
 class BookProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();

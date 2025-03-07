@@ -5,9 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:provider/provider.dart';
 
-import 'book_list_cell.dart';
-import 'book_provider.dart';
-import 'book_response.dart';
+import 'package:books_room/components/book_list_cell.dart';
+import 'package:books_room/providers/book_provider.dart';
+import 'package:books_room/models/book_response.dart';
 import 'login_screen.dart';
 
 class HomeScreen extends StatefulWidget {

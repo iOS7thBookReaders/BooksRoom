@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:books_room/services/auth_service.dart';
-import 'package:books_room/login_screen.dart';
+import 'package:books_room/screens/login_screen.dart';
 import 'package:books_room/color.dart';
 
 // 임시 임포트

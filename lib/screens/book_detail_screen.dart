@@ -1,10 +1,12 @@
+// ignore_for_file: avoid_print
+
 import 'package:books_room/color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'book_provider.dart';
-import 'format.dart';
+import 'package:books_room/providers/book_provider.dart';
+import 'package:books_room/components/format.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String bookISBN;

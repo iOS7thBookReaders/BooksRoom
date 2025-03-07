@@ -1,12 +1,14 @@
-import 'package:books_room/book_provider.dart';
+// ignore_for_file: avoid_print
+
+import 'package:books_room/providers/book_provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
-import 'login_screen.dart';
-import 'root_tab.dart';
+import 'package:books_room/screens/login_screen.dart';
+import 'package:books_room/screens/root_tab.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
