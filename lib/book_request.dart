@@ -1,43 +1,50 @@
 class BookRequestModel {
   final String ttbKey;
-  final String queryType;
-  final int maxResults;
-  final int start;
-  final String searchTarget;
   final String output;
   final String version;
-  final String year;
-  final String month;
-  final String week;
+  final String? queryType;
+  final int? maxResults;
+  final int? start;
+  final String? searchTarget;
   final String? sort;
-
+  final String? itemIdType;
+  final String? itemId;
+  final String? cover;
   BookRequestModel({
     required this.ttbKey,
-    required this.queryType,
-    required this.maxResults,
-    required this.start,
-    required this.searchTarget,
     required this.output,
     required this.version,
-    required this.year,
-    required this.month,
-    required this.week,
+    this.queryType,
+    this.maxResults,
+    this.start,
+    this.searchTarget,
     this.sort,
+    this.itemIdType,
+    this.itemId,
+    this.cover,
   });
 
   // Request URL 파라미터로 변환
-  Map<String, String> toQueryParameters() {
+  Map<String, String> toBestSellerQueryParameters() {
     return {
       'ttbkey': ttbKey,
-      'QueryType': queryType,
-      'MaxResults': maxResults.toString(),
-      'start': start.toString(),
-      'SearchTarget': searchTarget,
       'output': output,
       'Version': version,
-      'Year': year.toString(),
-      'Month': month.toString(),
-      'Week': week.toString(),
+      'QueryType': queryType ?? '',
+      'MaxResults': maxResults?.toString() ?? '',
+      'start': start?.toString() ?? '',
+      'SearchTarget': searchTarget ?? '',
+    };
+  }
+
+  Map<String, String> toDetailQueryParameters() {
+    return {
+      'ttbkey': ttbKey,
+      'output': output,
+      'Version': version,
+      'itemIdType': itemIdType ?? '',
+      'ItemId': itemId ?? '',
+      'Cover': cover ?? 'Mid',
     };
   }
 }
