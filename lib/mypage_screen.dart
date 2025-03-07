@@ -30,13 +30,21 @@ class MypageScreen extends StatelessWidget {
             // 로그아웃 버튼
             ElevatedButton(
               onPressed: () async {
+                // 먼저 context를 안전하게 저장
+                final navigatorContext = context;
+
                 // 로그아웃 실행
                 await authService.signOut();
 
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
+                // 컨텍스트가 아직 유효한지 확인 후 내비게이션
+                if (navigatorContext.mounted) {
+                  Navigator.pushReplacement(
+                    navigatorContext,
+                    MaterialPageRoute(
+                      builder: (context) => const LoginScreen(),
+                    ),
+                  );
+                }
               },
               style: ElevatedButton.styleFrom(backgroundColor: MAIN_COLOR),
               child: const Text('로그아웃'),

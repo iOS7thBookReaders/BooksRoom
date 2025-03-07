@@ -18,6 +18,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final _passwordController = TextEditingController();
   final AuthService _authService = AuthService();
 
+  final _passwordFocusNode = FocusNode();
+
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -25,6 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
   void dispose() {
     _emailController.dispose();
     _passwordController.dispose();
+    _passwordFocusNode.dispose();
     super.dispose();
   }
 
@@ -97,6 +100,9 @@ class _LoginScreenState extends State<LoginScreen> {
             TextField(
               controller: _emailController,
               keyboardType: TextInputType.emailAddress,
+              onSubmitted: (_) {
+                FocusScope.of(context).requestFocus(_passwordFocusNode);
+              },
               decoration: InputDecoration(
                 hintText: 'test@test.com',
                 hintStyle: TextStyle(color: GRAY500),
@@ -123,7 +129,13 @@ class _LoginScreenState extends State<LoginScreen> {
             // 비밀번호 입력 섹션
             TextField(
               controller: _passwordController,
+              focusNode: _passwordFocusNode,
               obscureText: true,
+              onSubmitted: (_) {
+                if (!_isLoading) {
+                  _signIn();
+                }
+              },
               decoration: InputDecoration(
                 hintText: 'Password',
                 hintStyle: TextStyle(color: GRAY500),

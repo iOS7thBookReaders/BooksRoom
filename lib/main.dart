@@ -41,6 +41,7 @@ class MyApp extends StatelessWidget {
 
         // 로그인된 상태면 RootTab으로, 아니면 LoginScreen으로
         if (snapshot.hasData && snapshot.data != null) {
+          print('자동로그인');
           return const RootTab();
         } else {
           return const LoginScreen();
