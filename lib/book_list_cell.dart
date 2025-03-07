@@ -38,6 +38,12 @@ class BookListCell extends StatelessWidget {
       }
     }
 
+    List<String> formatTitle(String title) {
+      // - 기준 분리
+      List<String> titleParts = title.split(' - ');
+      return titleParts;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 5),
       child: Column(
@@ -78,7 +84,7 @@ class BookListCell extends StatelessWidget {
                               ),
                             ),
                             TextSpan(
-                              text: title, // 제목
+                              text: formatTitle(title)[0], // 제목
                               style: TextStyle(
                                 fontSize: 14,
                                 fontWeight: FontWeight.w700, // 굵게 만드는 부분
@@ -87,6 +93,17 @@ class BookListCell extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (formatTitle(title).length > 1)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                formatTitle(title)[1],
+                                style: TextStyle(fontSize: 12),
+                              ),
+                            ),
+                          ],
+                        ),
                       SizedBox(height: 4), // 제목과 서브텍스트 간 간격
                       Row(
                         children: [
@@ -101,7 +118,7 @@ class BookListCell extends StatelessWidget {
                           Text(publisher, style: TextStyle(fontSize: 12)),
                           Text(
                             ' | ${extractYear(pubdate)}',
-                            style: TextStyle(fontSize: 14),
+                            style: TextStyle(fontSize: 12),
                           ),
                         ],
                       ),
