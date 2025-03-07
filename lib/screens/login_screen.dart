@@ -1,4 +1,4 @@
-import 'package:books_room/color.dart';
+import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
 
 import 'root_tab.dart';

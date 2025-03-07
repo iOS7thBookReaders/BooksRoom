@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 
-import 'package:books_room/color.dart';
+import 'package:books_room/components/color.dart';
 import 'package:books_room/models/book_model.dart';
 import 'package:books_room/services/review_firebase_service.dart';
 
