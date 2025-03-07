@@ -2,11 +2,14 @@
 
 import 'package:flutter/material.dart';
 
-const MAIN_COLOR = Color(0xFF7F491B);
-const SUB_YELLOW_COLOR = Color(0xFFCCA93D);
-const SUB_LIGHT_BROWN_COLOR = Color(0xFF795B30);
-const SUB_NORMAL_BROWN_COLOR = Color(0xFF99794F);
+// const MAIN_COLOR = Color(0xFF7F491B);
+// const SUB_LIGHT_BROWN_COLOR = Color(0xFF795B30);
+// const SUB_NORMAL_BROWN_COLOR = Color(0xFF99794F);
+// const SUB_DARK_BROWN_COLOR = Color(0xFF3A280C);
+const MAIN_COLOR = Color(0xFFFFCE2C);
+const SUB_COLOR = Color(0xFF916D46);
 const SUB_DARK_BROWN_COLOR = Color(0xFF3A280C);
+const POINT_COLOR = Color(0xFF413EA3);
 
 const GRAY50_BACKGROUND = Color(0xFFF6F7F8);
 const GRAY200_LINE = Color(0xFFDBDEE2);
