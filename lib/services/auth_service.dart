@@ -43,6 +43,7 @@ class AuthService {
   // 로그아웃
   Future<void> signOut() async {
     await _auth.signOut();
+    print('로그아웃 성공');
   }
 
   // Firebase 인증 예외 처리

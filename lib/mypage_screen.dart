@@ -1,6 +1,10 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:books_room/services/auth_service.dart';
+import 'package:books_room/login_screen.dart';
+import 'package:books_room/color.dart';
+
 // 임시 임포트
 import 'package:books_room/screens/review_screen.dart';
 import 'package:books_room/services/review_firebase_service.dart';
@@ -11,7 +15,8 @@ class MypageScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Firebase 서비스 인스턴스 생성
-    final reviewFirebaseService = ReviewFirebaseService();
+    final reviewFirebaseService = ReviewFirebaseService(); // 리뷰화면을 위한 임시 코드
+    final authService = AuthService(); // 로그아웃을 위한 인스턴스
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -21,6 +26,23 @@ class MypageScreen extends StatelessWidget {
           children: [
             Text('MypageScreen'),
             SizedBox(height: 20),
+
+            // 로그아웃 버튼
+            ElevatedButton(
+              onPressed: () async {
+                // 로그아웃 실행
+                await authService.signOut();
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(backgroundColor: MAIN_COLOR),
+              child: const Text('로그아웃'),
+            ),
+            SizedBox(height: 20),
+
             // 임시로 리뷰 화면으로 이동하는 코드 구현 (도서정보화면 구현 후 삭제 예정)
             ElevatedButton(
               onPressed: () async {
