@@ -1,8 +1,8 @@
-import 'package:books_room/book_detail_screen.dart';
-import 'package:books_room/color.dart';
+import 'package:books_room/screens/book_detail_screen.dart';
+import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
 
-import 'book_response.dart';
+import '../models/book_response.dart';
 import 'format.dart';
 
 class BookListCell extends StatelessWidget {

@@ -3,8 +3,8 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
-import 'book_request.dart';
-import 'book_response.dart';
+import '../models/book_request.dart';
+import '../models/book_response.dart';
 
 class ApiService {
   final String _baseURL = 'http://www.aladin.co.kr/ttb/api';
