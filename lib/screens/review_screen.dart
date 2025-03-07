@@ -1,8 +1,18 @@
-import 'package:books_room/color.dart';
 import 'package:flutter/material.dart';
 
+import 'package:books_room/color.dart';
+import 'package:books_room/models/book_model.dart';
+import 'package:books_room/services/review_firebase_service.dart';
+
 class ReviewScreen extends StatefulWidget {
-  const ReviewScreen({super.key});
+  final BookModel bookModel;
+  final ReviewFirebaseService firebaseService;
+
+  const ReviewScreen({
+    super.key,
+    required this.bookModel,
+    required this.firebaseService,
+  });
 
   @override
   State<ReviewScreen> createState() => _ReviewScreenState();
@@ -10,24 +20,42 @@ class ReviewScreen extends StatefulWidget {
 
 class _ReviewScreenState extends State<ReviewScreen> {
   // 도서 정보 변수
-  final String booktitle = '채식주의자';
-  final String author = '한강';
-  final String publisher = '창비';
-  final String publishDate = '2007년 10월 30일';
-  final String genre = '장편소설, 심리소설';
-  final String page = '247';
-  final String bookIntro = '폭력과 아름다움의 처절한 공존\n여전히 새롭게 읽히는 한강 소설의 힘';
+  // final String booktitle = '채식주의자';
+  // final String author = '한강';
+  // final String publisher = '창비';
+  // final String publishDate = '2007년 10월 30일';
+  // final String genre = '장편소설, 심리소설';
+  // final String page = '247';
+  // final String bookIntro = '폭력과 아름다움의 처절한 공존\n여전히 새롭게 읽히는 한강 소설의 힘';
 
   // 리뷰 상태 변수
-  final TextEditingController reviewController = TextEditingController();
-  final TextEditingController oneLineCommentController =
-      TextEditingController();
+  late TextEditingController reviewController;
+  late TextEditingController oneLineCommentController;
   int starRating = 0;
   String oneLineCommentLength = '0/20'; // 한줄평 글자수
 
   @override
   void initState() {
     super.initState();
+
+    // 컨트롤러 초기화
+    reviewController = TextEditingController();
+    oneLineCommentController = TextEditingController();
+
+    // 기존 리뷰 정보가 있으면 로드
+    if (widget.bookModel.review != null) {
+      reviewController.text = widget.bookModel.review ?? '';
+    }
+
+    if (widget.bookModel.oneLineComment != null) {
+      oneLineCommentController.text = widget.bookModel.oneLineComment ?? '';
+      _updateOneLineCommentLength();
+    }
+
+    if (widget.bookModel.starRating != null) {
+      starRating = widget.bookModel.starRating ?? 0;
+    }
+
     // 한줄평 텍스트 변경 리스너
     oneLineCommentController.addListener(_updateOneLineCommentLength);
   }
@@ -50,20 +78,53 @@ class _ReviewScreenState extends State<ReviewScreen> {
   }
 
   // 리뷰 저장 메서드
-  void _saveReview() {
-    // TODO: 저장 로직 구현
+  void _saveReview() async {
+    try {
+      // 현재 입력된 리뷰 정보로 책 모델 업데이트
+      final updatedBook = BookModel(
+        isbn13: widget.bookModel.isbn13,
+        title: widget.bookModel.title,
+        author: widget.bookModel.author,
+        publisher: widget.bookModel.publisher,
+        publishDate: widget.bookModel.publishDate,
+        genre: widget.bookModel.genre,
+        page: widget.bookModel.page,
+        bookIntro: widget.bookModel.bookIntro,
+        // 새로운 리뷰 정보 추가
+        review: reviewController.text,
+        oneLineComment: oneLineCommentController.text,
+        starRating: starRating,
+      );
 
-    // 저장 완료 후 알림
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('리뷰가 저장되었습니다')));
+      // 파이어베이스에 업데이트
+      await widget.firebaseService.updateBook(updatedBook);
 
-    // 이전 화면으로 돌아가기
-    Navigator.pop(context);
+      // 저장 완료 후 알림
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('리뷰가 저장되었습니다')));
+
+      // 이전 화면으로 돌아가기
+      Navigator.pop(context);
+    } catch (e) {
+      // 에러 발생 시 처리
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    // BookModel에서 책 정보 가져오기
+    final booktitle = widget.bookModel.title;
+    final author = widget.bookModel.author;
+    final publisher = widget.bookModel.publisher;
+    final publishDate = widget.bookModel.publishDate ?? '';
+    final genre = widget.bookModel.genre ?? '';
+    final page = widget.bookModel.page ?? '';
+    final bookIntro = widget.bookModel.bookIntro ?? '';
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('도서 리뷰'),

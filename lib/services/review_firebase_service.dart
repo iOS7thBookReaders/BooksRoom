@@ -11,7 +11,8 @@ class ReviewFirebaseService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   // 현재 로그인한 사용자 ID 가져오기
-  String? get currentUserId => _auth.currentUser?.uid;
+  //String? get currentUserId => _auth.currentUser?.uid;
+  String currentUserId = 'test123@google.com'; // 임시 더미 데이터
 
   // 컬렉션 레퍼런스
   CollectionReference get usersCollection => _firestore.collection('users');
@@ -24,6 +25,7 @@ class ReviewFirebaseService {
   // 현재 사용자의 books 컬렉션 참조 얻기
   CollectionReference? get currentUserBooks {
     final userId = currentUserId;
+    print('현재 사용자 ID: $userId');
     if (userId == null) return null;
     return getBooksCollection(userId);
   }

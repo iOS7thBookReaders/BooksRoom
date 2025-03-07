@@ -10,6 +10,11 @@ class BookModel {
   String? page;
   String? bookIntro;
 
+  // 리뷰 관련 필드
+  String? review;
+  String? oneLineComment;
+  int? starRating;
+
   // 기본 생성자
   BookModel({
     required this.isbn13,
@@ -20,6 +25,9 @@ class BookModel {
     this.genre,
     this.page,
     this.bookIntro,
+    this.review,
+    this.oneLineComment,
+    this.starRating,
   });
 
   // Firestore 문서에서 BookModel 객체 생성
@@ -35,6 +43,9 @@ class BookModel {
       genre: data['genre'],
       page: data['page'],
       bookIntro: data['bookIntro'],
+      review: data['review'],
+      oneLineComment: data['oneLineComment'],
+      starRating: data['starRating'],
     );
   }
 
@@ -48,6 +59,9 @@ class BookModel {
       'genre': genre,
       'page': page,
       'bookIntro': bookIntro,
+      'review': review,
+      'oneLineComment': oneLineComment,
+      'starRating': starRating,
     };
   }
 }
