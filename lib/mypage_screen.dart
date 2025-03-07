@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:flutter/material.dart';
 // 임시 임포트
 import 'package:books_room/screens/review_screen.dart';

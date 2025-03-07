@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:firebase_auth/firebase_auth.dart';
 
 class AuthService {
@@ -14,6 +16,7 @@ class AuthService {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: email, password: password);
+      print('회원가입 성공 $email');
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthException(e);

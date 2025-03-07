@@ -104,9 +104,28 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     SizedBox(height: 50),
+
+                    // 오류 메시지 표시
+                    if (_errorMessage != null)
+                      Container(
+                        padding: EdgeInsets.all(10),
+                        margin: EdgeInsets.only(bottom: 20),
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.red.shade100,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          _errorMessage!,
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+
+                    // 이메일 입력 섹션
                     Row(children: [Text('이메일'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: 'test@test.com',
@@ -131,9 +150,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
+
+                    // 비밀번호 입력 섹션
                     Row(children: [Text('비밀번호'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: 'Password',
@@ -158,9 +180,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                     ),
                     SizedBox(height: 10),
+
+                    // 비밀번호 확인 입력 섹션
                     Row(children: [Text('비밀번호 확인'), Spacer()]),
                     SizedBox(height: 5),
                     TextField(
+                      controller: _confirmPasswordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         helperText: '비밀번호를 한번 더 입력해주세요.',
@@ -190,6 +215,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             ),
+
+            // 회원가입 버튼 섹션
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -202,13 +229,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-                child: Text(
-                  '회원가입',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
-                ),
+                onPressed: _isLoading ? null : _signUp,
+                child:
+                    _isLoading
+                        ? CircularProgressIndicator(color: Colors.white)
+                        : Text(
+                          '회원가입',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
               ),
             ),
             SizedBox(height: 30),
