@@ -12,25 +12,19 @@ class ReviewFirebaseService {
   // Auth 인스턴스
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // 현재 로그인한 사용자 ID 가져오기
-  //String? get currentUserId => _auth.currentUser?.uid;
-  String currentUserId = 'test123@google.com'; // 임시 더미 데이터
+  // 현재 로그인한 사용자 이메일 가져오기
+  String? get currentUserEmail => _auth.currentUser?.email;
 
   // 컬렉션 레퍼런스
   CollectionReference get usersCollection => _firestore.collection('users');
 
-  // 사용자별 books 컬렉션 참조 얻기
-  CollectionReference getBooksCollection(String userId) {
-    return usersCollection.doc(userId).collection('books');
-  }
-
   // 현재 사용자의 books 컬렉션 참조 얻기
   CollectionReference? get currentUserBooks {
-    final userId = currentUserId;
-    print('현재 사용자 ID: $userId');
-    if (userId == null) return null;
-    print('접근하는 컬렉션 경로: users/$userId/books');
-    return getBooksCollection(userId);
+    final email = currentUserEmail;
+    print('현재 사용자 Email: $email');
+    if (email == null) return null;
+    print('접근하는 컬렉션 경로: users/$email/books');
+    return usersCollection.doc(email).collection('books');
   }
 
   // 책 목록 가져오기

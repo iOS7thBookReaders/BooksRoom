@@ -21,15 +21,6 @@ class ReviewScreen extends StatefulWidget {
 }
 
 class _ReviewScreenState extends State<ReviewScreen> {
-  // 도서 정보 변수
-  // final String booktitle = '채식주의자';
-  // final String author = '한강';
-  // final String publisher = '창비';
-  // final String publishDate = '2007년 10월 30일';
-  // final String genre = '장편소설, 심리소설';
-  // final String page = '247';
-  // final String bookIntro = '폭력과 아름다움의 처절한 공존\n여전히 새롭게 읽히는 한강 소설의 힘';
-
   // 리뷰 상태 변수
   late TextEditingController reviewController;
   late TextEditingController oneLineCommentController;
