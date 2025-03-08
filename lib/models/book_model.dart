@@ -15,6 +15,11 @@ class BookModel {
   String? oneLineComment;
   int? starRating;
 
+  // 상태 필드
+  bool isWishing;
+  bool isReading;
+  bool isReviewed;
+
   // 기본 생성자
   BookModel({
     required this.isbn13,
@@ -28,6 +33,9 @@ class BookModel {
     this.review,
     this.oneLineComment,
     this.starRating,
+    this.isWishing = false, // 기본값 false
+    this.isReading = false, // 기본값 false
+    this.isReviewed = false, // 기본값 false
   });
 
   // Firestore 문서에서 BookModel 객체 생성
@@ -46,6 +54,9 @@ class BookModel {
       review: data['review'],
       oneLineComment: data['oneLineComment'],
       starRating: data['starRating'],
+      isWishing: data['isWishing'] ?? false,
+      isReading: data['isReading'] ?? false,
+      isReviewed: data['isReviewed'] ?? false,
     );
   }
 
@@ -62,6 +73,44 @@ class BookModel {
       'review': review,
       'oneLineComment': oneLineComment,
       'starRating': starRating,
+      'isWishing': isWishing,
+      'isReading': isReading,
+      'isReviewed': isReviewed,
     };
+  }
+
+  // 복사본을 생성하는 메서드 추가
+  BookModel copyWith({
+    String? isbn13,
+    String? title,
+    String? author,
+    String? publisher,
+    String? publishDate,
+    String? genre,
+    String? page,
+    String? bookIntro,
+    String? review,
+    String? oneLineComment,
+    int? starRating,
+    bool? isWishing,
+    bool? isReading,
+    bool? isReviewed,
+  }) {
+    return BookModel(
+      isbn13: isbn13 ?? this.isbn13,
+      title: title ?? this.title,
+      author: author ?? this.author,
+      publisher: publisher ?? this.publisher,
+      publishDate: publishDate ?? this.publishDate,
+      genre: genre ?? this.genre,
+      page: page ?? this.page,
+      bookIntro: bookIntro ?? this.bookIntro,
+      review: review ?? this.review,
+      oneLineComment: oneLineComment ?? this.oneLineComment,
+      starRating: starRating ?? this.starRating,
+      isWishing: isWishing ?? this.isWishing,
+      isReading: isReading ?? this.isReading,
+      isReviewed: isReviewed ?? this.isReviewed,
+    );
   }
 }

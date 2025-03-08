@@ -1,12 +1,15 @@
 // ignore_for_file: avoid_print
-
-import 'package:books_room/components/color.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'package:books_room/providers/book_provider.dart';
 import 'package:books_room/components/format.dart';
+import 'package:books_room/services/book_firebase_service.dart';
+import 'package:books_room/models/book_model.dart';
+import 'package:books_room/components/color.dart';
+import 'package:books_room/services/review_firebase_service.dart';
+import 'package:books_room/screens/review_screen.dart';
 
 class BookDetailScreen extends StatefulWidget {
   final String bookISBN;
@@ -17,10 +20,18 @@ class BookDetailScreen extends StatefulWidget {
 }
 
 class _BookDetailScreenState extends State<BookDetailScreen> {
-  bool isFavorite = false; // Firebase 상태값 받아오기
-  bool isReading = false; // Firebase 상태값 받아오기
-  bool isReviewing = false; // Firebase 상태값 받아오기
+  // 상태 변수
+  bool isWishing = false;
+  bool isReading = false;
+  bool isReviewed = false;
   bool isDataLoaded = false; // 데이터가 이미 로드되었는지 여부 체크
+
+  // Firebase 서비스 인스턴스
+  final BookFirebaseService _bookFirebaseService = BookFirebaseService();
+  // 현재 책의 Firebase 저장 모델
+  BookModel? _savedBookModel;
+  // 로딩 상태 추가
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -30,14 +41,137 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
 
       if (!isDataLoaded) {
+        // 1. API에서 책 정보 가져오기
         bookProvider.fetchBookDetail(widget.bookISBN).then((_) {
           // 데이터 로딩이 완료된 후에 setState()를 호출하여 화면 갱신
           setState(() {
             isDataLoaded = true; // 데이터를 이미 로드했으므로 상태를 true로 설정
           });
+
+          // 2. Firebase에서 책 정보 확인 및 필요시 저장 (비동기 처리)
+          _checkAndSaveBookIfNeeded();
         });
       }
     });
+  }
+
+  // 책이 Firebase에 있는지 확인하고 없으면 저장하는 메서드
+  Future<void> _checkAndSaveBookIfNeeded() async {
+    try {
+      // 책이 이미 저장되어 있는지 확인
+      final savedBook = await _bookFirebaseService.getBook(widget.bookISBN);
+
+      if (savedBook != null) {
+        // 이미 저장된 책이면 상태 로드
+        print('이미 저장된 책 발견: ${savedBook.title}');
+        setState(() {
+          _savedBookModel = savedBook;
+          // 저장된 상태 정보로 UI 업데이트
+          isWishing = savedBook.isWishing;
+          isReading = savedBook.isReading;
+          isReviewed = savedBook.isReviewed;
+        });
+        print(
+          '저장된 책 정보: 찜=${savedBook.isWishing}, 읽는중=${savedBook.isReading}, 리뷰=${savedBook.isReviewed}',
+        );
+      } else {
+        // 저장된 책이 없으면 API에서 가져온 정보를 Firebase에 저장
+        final bookProvider = Provider.of<BookProvider>(context, listen: false);
+        final bookDetailData = bookProvider.bookDetailData;
+
+        if (bookDetailData != null && bookDetailData.items!.isNotEmpty) {
+          final bookItem = bookDetailData.items![0];
+
+          // API 응답에서 BookModel 생성
+          final bookModel = _bookFirebaseService.convertToBookModel(bookItem);
+
+          // Firebase에 저장
+          await _bookFirebaseService.saveBook(bookModel);
+          print('새 책 정보 Firebase에 저장: ${bookModel.title}');
+
+          // 저장 후 다시 불러와 _savedBookModel 업데이트
+          final updatedBook = await _bookFirebaseService.getBook(
+            widget.bookISBN,
+          );
+          if (updatedBook != null) {
+            setState(() {
+              _savedBookModel = updatedBook;
+            });
+          }
+        }
+      }
+    } catch (e) {
+      print('저장된 책 정보 확인 오류: $e');
+    }
+  }
+
+  // 책 상태 업데이트 메서드
+  Future<void> _updateBookStatus({
+    required bool isWishing,
+    required bool isReading,
+    required bool isReviewed,
+  }) async {
+    if (_savedBookModel == null) {
+      print('저장된 책 모델이 없어 상태를 업데이트할 수 없습니다');
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      // 이미 저장된 모델의 상태만 업데이트
+      final updatedModel = _savedBookModel!.copyWith(
+        isWishing: isWishing,
+        isReading: isReading,
+        isReviewed: isReviewed,
+      );
+
+      await _bookFirebaseService.saveBook(updatedModel);
+      setState(() {
+        _savedBookModel = updatedModel;
+      });
+    } catch (e) {
+      print('책 상태 업데이트 오류: $e');
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+    } finally {
+      setState(() {
+        _isSaving = false;
+      });
+    }
+  }
+
+  // 리뷰 화면으로 이동하는 헬퍼 메서드
+  void _navigateToReviewScreen() {
+    if (_savedBookModel != null) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => ReviewScreen(
+                bookModel: _savedBookModel!,
+                firebaseService: ReviewFirebaseService(),
+              ),
+        ),
+      ).then((_) {
+        // 리뷰 작성 후 돌아오면 책 상태 다시 확인
+        _checkAndSaveBookIfNeeded();
+      });
+    } else {
+      // 저장된 모델이 없으면 먼저 책 정보 확인/저장 후 이동
+      _checkAndSaveBookIfNeeded().then((_) {
+        if (_savedBookModel != null) {
+          _navigateToReviewScreen();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('책 정보를 저장할 수 없어 리뷰를 작성할 수 없습니다')),
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -200,10 +334,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                 ),
               ),
             ),
+
+            // 버튼 섹션(찜, 읽는중, 리뷰)
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
+                // 찜 버튼
                 Expanded(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -212,28 +349,36 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icon(
                           Icons.check_circle_outline_outlined,
                           size: 30,
-                          color: isFavorite ? POINT_COLOR : GRAY900,
+                          color: isWishing ? POINT_COLOR : GRAY900,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            isFavorite = !isFavorite;
-                            // firebase 업데이트
-                          });
-                        },
+                        onPressed:
+                            _isSaving
+                                ? null
+                                : () {
+                                  setState(() {
+                                    isWishing = !isWishing;
+                                  });
+                                  // firebase 업데이트
+                                  _updateBookStatus(
+                                    isWishing: isWishing,
+                                    isReading: isReading,
+                                    isReviewed: isReviewed,
+                                  );
+                                },
                       ),
                       Text(
                         '찜',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isFavorite ? POINT_COLOR : GRAY900,
+                          color: isWishing ? POINT_COLOR : GRAY900,
                         ),
                       ),
                     ],
                   ),
                 ),
                 SizedBox(width: 20),
+                // 읽는중 버튼
                 Expanded(
-                  // 읽는중
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -243,12 +388,20 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           size: 30,
                           color: isReading ? POINT_COLOR : GRAY900,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            isReading = !isReading;
-                            // firebase 업데이트
-                          });
-                        },
+                        onPressed:
+                            _isSaving
+                                ? null
+                                : () {
+                                  setState(() {
+                                    isReading = !isReading;
+                                  });
+                                  // firebase 업데이트
+                                  _updateBookStatus(
+                                    isWishing: isWishing,
+                                    isReading: isReading,
+                                    isReviewed: isReviewed,
+                                  );
+                                },
                       ),
                       Text(
                         '읽는중',
@@ -262,8 +415,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                   ),
                 ),
                 SizedBox(width: 20),
+                // 리뷰 버튼
                 Expanded(
-                  // 독후감
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -271,20 +424,32 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icon(
                           Icons.edit_note_rounded,
                           size: 30,
-                          color: isReviewing ? POINT_COLOR : GRAY900,
+                          color: isReviewed ? POINT_COLOR : GRAY900,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            isReviewing = !isReviewing;
-                            // firebase 업데이트
-                          });
-                        },
+                        onPressed:
+                            _isSaving
+                                ? null
+                                : () {
+                                  if (_savedBookModel == null) {
+                                    // 먼저 책 정보 저장
+                                    _updateBookStatus(
+                                      isWishing: isWishing,
+                                      isReading: isReading,
+                                      isReviewed: isReviewed,
+                                    ).then((_) {
+                                      // 그 후 리뷰 화면으로 이동
+                                      _navigateToReviewScreen();
+                                    });
+                                  } else {
+                                    _navigateToReviewScreen();
+                                  }
+                                },
                       ),
                       Text(
                         '독후감',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isReviewing ? POINT_COLOR : GRAY900,
+                          color: isReviewed ? POINT_COLOR : GRAY900,
                         ),
                       ),
                     ],
