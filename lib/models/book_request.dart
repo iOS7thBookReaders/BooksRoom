@@ -10,6 +10,8 @@ class BookRequestModel {
   final String? itemIdType;
   final String? itemId;
   final String? cover;
+  final String? query;
+
   BookRequestModel({
     required this.ttbKey,
     required this.output,
@@ -22,6 +24,7 @@ class BookRequestModel {
     this.itemIdType,
     this.itemId,
     this.cover,
+    this.query,
   });
 
   // Request URL 파라미터로 변환
@@ -30,10 +33,10 @@ class BookRequestModel {
       'ttbkey': ttbKey,
       'output': output,
       'Version': version,
-      'QueryType': queryType ?? '',
-      'MaxResults': maxResults?.toString() ?? '',
-      'start': start?.toString() ?? '',
-      'SearchTarget': searchTarget ?? '',
+      'QueryType': queryType ?? 'Bestseller',
+      'MaxResults': maxResults?.toString() ?? '10',
+      'start': start?.toString() ?? '1',
+      'SearchTarget': searchTarget ?? 'Book',
     };
   }
 
@@ -45,6 +48,20 @@ class BookRequestModel {
       'itemIdType': itemIdType ?? '',
       'ItemId': itemId ?? '',
       'Cover': cover ?? 'Mid',
+    };
+  }
+
+  Map<String, String> toSearchQueryParameters() {
+    return {
+      'ttbkey': ttbKey,
+      'output': output,
+      'Version': version,
+      'Query': query ?? '',
+      'QueryType': queryType ?? 'Keyword',
+      'Sort': sort ?? 'Accuracy',
+      'MaxResults': maxResults?.toString() ?? '10',
+      'start': start?.toString() ?? '1',
+      'SearchTarget': searchTarget ?? 'Book',
     };
   }
 }

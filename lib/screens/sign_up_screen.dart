@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
-import 'color.dart';
+import '../components/color.dart';
 import 'package:books_room/services/auth_service.dart';
 
 class SignUpScreen extends StatefulWidget {
