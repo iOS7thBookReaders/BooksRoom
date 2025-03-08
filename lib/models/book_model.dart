@@ -9,6 +9,7 @@ class BookModel {
   String? genre;
   String? page;
   String? bookIntro;
+  String? coverUrl;
 
   // 리뷰 관련 필드
   String? review;
@@ -30,6 +31,7 @@ class BookModel {
     this.genre,
     this.page,
     this.bookIntro,
+    this.coverUrl,
     this.review,
     this.oneLineComment,
     this.starRating,
@@ -51,6 +53,7 @@ class BookModel {
       genre: data['genre'],
       page: data['page'],
       bookIntro: data['bookIntro'],
+      coverUrl: data['coverUrl'],
       review: data['review'],
       oneLineComment: data['oneLineComment'],
       starRating: data['starRating'],
@@ -70,6 +73,7 @@ class BookModel {
       'genre': genre,
       'page': page,
       'bookIntro': bookIntro,
+      'coverUrl': coverUrl,
       'review': review,
       'oneLineComment': oneLineComment,
       'starRating': starRating,
@@ -89,6 +93,7 @@ class BookModel {
     String? genre,
     String? page,
     String? bookIntro,
+    String? coverUrl,
     String? review,
     String? oneLineComment,
     int? starRating,
@@ -105,6 +110,7 @@ class BookModel {
       genre: genre ?? this.genre,
       page: page ?? this.page,
       bookIntro: bookIntro ?? this.bookIntro,
+      coverUrl: coverUrl ?? this.coverUrl,
       review: review ?? this.review,
       oneLineComment: oneLineComment ?? this.oneLineComment,
       starRating: starRating ?? this.starRating,

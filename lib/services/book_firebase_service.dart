@@ -35,6 +35,7 @@ class BookFirebaseService {
       genre: bookItem.categoryName,
       page: bookItem.subInfo?.itemPage?.toString(),
       bookIntro: bookItem.description,
+      coverUrl: bookItem.cover,
       // 리뷰 관련 필드는 초기에는 null로 설정
       review: null,
       oneLineComment: null,

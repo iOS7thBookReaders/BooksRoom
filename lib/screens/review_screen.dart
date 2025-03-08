@@ -80,19 +80,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
       print('저장할 별점: $starRating');
 
       // 현재 입력된 리뷰 정보로 책 모델 업데이트
-      final updatedBook = BookModel(
-        isbn13: widget.bookModel.isbn13,
-        title: widget.bookModel.title,
-        author: widget.bookModel.author,
-        publisher: widget.bookModel.publisher,
-        publishDate: widget.bookModel.publishDate,
-        genre: widget.bookModel.genre,
-        page: widget.bookModel.page,
-        bookIntro: widget.bookModel.bookIntro,
-        // 새로운 리뷰 정보 추가
+      final updatedBook = widget.bookModel.copyWith(
         review: reviewController.text,
         oneLineComment: oneLineCommentController.text,
         starRating: starRating,
+        isReviewed: true, // 리뷰 작성 시 true로 설정
       );
 
       // 파이어베이스에 업데이트
@@ -125,6 +117,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     final genre = widget.bookModel.genre ?? '';
     final page = widget.bookModel.page ?? '';
     final bookIntro = widget.bookModel.bookIntro ?? '';
+    final coverUrl = widget.bookModel.coverUrl ?? '';
 
     return Scaffold(
       appBar: AppBar(
@@ -149,12 +142,41 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 책 표지 (임시)
+                      // 책 표지
                       Container(
                         width: 120,
                         height: 180,
                         color: Colors.grey.shade300,
                         margin: const EdgeInsets.only(right: 16.0),
+                        child:
+                            coverUrl.isNotEmpty
+                                ? Image.network(
+                                  coverUrl,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    // 이미지 로드 실패시 대체 UI
+                                    return Container(
+                                      color: Colors.grey.shade300,
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.book,
+                                          size: 50,
+                                          color: Colors.grey.shade700,
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                )
+                                : Container(
+                                  color: Colors.grey.shade300,
+                                  child: Center(
+                                    child: Icon(
+                                      Icons.book,
+                                      size: 50,
+                                      color: Colors.grey.shade700,
+                                    ),
+                                  ),
+                                ),
                       ),
                       // 책 정보
                       Expanded(
