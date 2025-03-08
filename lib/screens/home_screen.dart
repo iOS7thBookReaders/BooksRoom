@@ -8,8 +8,9 @@ import 'package:provider/provider.dart';
 import 'package:books_room/components/book_list_cell.dart';
 import 'package:books_room/providers/book_provider.dart';
 import 'package:books_room/models/book_response.dart';
-import 'login_screen.dart';
 import 'package:books_room/screens/search_screen.dart';
+import 'package:books_room/services/review_firebase_service.dart';
+import 'package:books_room/models/book_model.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -23,14 +24,31 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   bool _isFloatingButtonExpanded = true;
 
+  // ReviewFirebaseService 인스턴스
+  final ReviewFirebaseService _reviewFirebaseService = ReviewFirebaseService();
+
+  // 읽고 있는 책 목록을 저장할 변수
+  List<BookModel> _readingBooks = [];
+  List<BookModel> _wishingBooks = [];
+
+  // 데이터 로딩 상태 관리
+  bool _isReadingBooksLoading = true;
+  bool _isWishingBooksLoading = true;
+
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_onScroll);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
       bookProvider.fetchBookBestseller();
+
+      // 읽고 있는 책 데이터 구독
+      _loadReadingBooks();
+      // 찜한 책 데이터 구독
+      _loadWishingBooks();
     });
   }
 
@@ -50,6 +68,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     }
+  }
+
+  // 읽고 있는 책 로드 메서드
+  void _loadReadingBooks() {
+    _reviewFirebaseService.getReadingBooks().listen((books) {
+      setState(() {
+        _readingBooks = books;
+        _isReadingBooksLoading = false;
+      });
+    });
+  }
+
+  // 찜한 책 로드 메서드
+  void _loadWishingBooks() {
+    _reviewFirebaseService.getWishingBooks().listen((books) {
+      setState(() {
+        _wishingBooks = books;
+        _isWishingBooksLoading = false;
+      });
+    });
   }
 
   @override
@@ -104,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 ? Center(child: Text('데이터가 없습니다.'))
                 : buildBestSellerListView(booksBestsellerData),
             buildReadingListView(),
-            buildFavoriteListView(),
+            buildWishingListView(),
           ],
         ),
       ),
@@ -188,20 +226,72 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget buildReadingListView() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ListTile(title: Text('읽는중 $index'));
-      },
+    if (_isReadingBooksLoading) {
+      return Center(child: CircularProgressIndicator(color: MAIN_COLOR));
+    }
+
+    if (_readingBooks.isEmpty) {
+      return Center(child: Text('읽고 있는 책이 없습니다.'));
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Text(
+              '읽고 있는 책',
+              style: TextStyle(
+                color: POINT_COLOR,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Column(
+            children:
+                _readingBooks.map((book) {
+                  // BookModel을 BookItem으로 변환
+                  return BookListCell(bookItem: book.toBookItem());
+                }).toList(),
+          ),
+        ],
+      ),
     );
   }
 
-  Widget buildFavoriteListView() {
-    return ListView.builder(
-      itemCount: 10,
-      itemBuilder: (context, index) {
-        return ListTile(title: Text('찜 $index'));
-      },
+  Widget buildWishingListView() {
+    if (_isWishingBooksLoading) {
+      return Center(child: CircularProgressIndicator(color: MAIN_COLOR));
+    }
+
+    if (_wishingBooks.isEmpty) {
+      return Center(child: Text('찜한 책이 없습니다.'));
+    }
+
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Text(
+              '찜한 책',
+              style: TextStyle(
+                color: POINT_COLOR,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          Column(
+            children:
+                _wishingBooks.map((book) {
+                  // BookModel을 BookItem으로 변환
+                  return BookListCell(bookItem: book.toBookItem());
+                }).toList(),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:books_room/models/book_response.dart';
 
 class BookModel {
   final String isbn13; // 문서 ID로 사용할 ISBN
@@ -117,6 +118,24 @@ class BookModel {
       isWishing: isWishing ?? this.isWishing,
       isReading: isReading ?? this.isReading,
       isReviewed: isReviewed ?? this.isReviewed,
+    );
+  }
+
+  // 홈화면에 Firebase 데이터를 API 방식으로 전달
+  BookItem toBookItem() {
+    return BookItem(
+      isbn13: isbn13,
+      title: title,
+      author: author,
+      pubDate: publishDate,
+      publisher: publisher,
+      cover: coverUrl,
+      categoryName: genre,
+      description: bookIntro,
+      subInfo: BookSubInfo(
+        subTitle: "", // BookModel에는 부제목 필드가 없으므로 빈 문자열 사용
+        itemPage: int.tryParse(page ?? "0"), // 문자열에서 정수로 변환
+      ),
     );
   }
 }

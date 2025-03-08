@@ -97,4 +97,32 @@ class ReviewFirebaseService {
 
     return booksRef.doc(isbn13).delete();
   }
+
+  // 읽고 있는 책 목록 가져오기 (isReading이 true인 책들)
+  Stream<List<BookModel>> getReadingBooks() {
+    final booksRef = currentUserBooks;
+    if (booksRef == null) {
+      return Stream.value([]);
+    }
+
+    return booksRef.where('isReading', isEqualTo: true).snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
+    });
+  }
+
+  // 찜한 책 목록 가져오기 (isWishing이 true인 책들)
+  Stream<List<BookModel>> getWishingBooks() {
+    final booksRef = currentUserBooks;
+    if (booksRef == null) {
+      return Stream.value([]);
+    }
+
+    return booksRef.where('isWishing', isEqualTo: true).snapshots().map((
+      snapshot,
+    ) {
+      return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
+    });
+  }
 }
