@@ -9,6 +9,7 @@ import 'package:books_room/components/book_list_cell.dart';
 import 'package:books_room/providers/book_provider.dart';
 import 'package:books_room/models/book_response.dart';
 import 'login_screen.dart';
+import 'package:books_room/screens/search_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -113,9 +114,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         height: 50,
         child: FloatingActionButton.extended(
           onPressed: () {
+            bookProvider.resetSearchData();
             Navigator.push(
               context,
-              MaterialPageRoute(builder: (context) => const LoginScreen()),
+              MaterialPageRoute(builder: (context) => const SearchScreen()),
             );
           },
           backgroundColor: MAIN_COLOR,
@@ -151,30 +153,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   Widget buildBestSellerListView(BookResponse bookData) {
-    return Container(
-      child: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: Text(
-                '이번주 베스트셀러',
-                style: TextStyle(
-                  color: POINT_COLOR,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w600,
-                ),
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10.0),
+            child: Text(
+              '이번주 베스트셀러',
+              style: TextStyle(
+                color: POINT_COLOR,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            if (bookData.items != null)
-              Column(
-                children:
-                    bookData.items!.map((bookItem) {
-                      return BookListCell(bookItem: bookItem);
-                    }).toList(),
-              ),
-          ],
-        ),
+          ),
+          if (bookData.items != null)
+            Column(
+              children:
+                  bookData.items!.map((bookItem) {
+                    return BookListCell(bookItem: bookItem);
+                  }).toList(),
+            ),
+        ],
       ),
     );
 

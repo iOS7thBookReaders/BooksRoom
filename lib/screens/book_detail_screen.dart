@@ -36,7 +36,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   @override
   void initState() {
     super.initState();
-
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
 
@@ -179,19 +178,15 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     Format format = Format();
     final bookProvider = Provider.of<BookProvider>(context);
     final bookDetailData = bookProvider.bookDetailData;
+    print(bookDetailData);
 
-    // 처음에 'null'을 찍는 대신에 bookDetailData가 null일 때만 출력하도록 조건 추가
     if (bookDetailData == null) {
-      print('📍 데이터 로딩 중...');
       return Scaffold(body: Center(child: CircularProgressIndicator()));
+    } else {
+      if (bookDetailData.items!.isEmpty) {
+        return Scaffold(body: Center(child: Text('존재하지 않는 책입니다.')));
+      }
     }
-
-    // 데이터가 비어있는 경우 처리
-    if (bookDetailData.items!.isEmpty) {
-      return Scaffold(body: Center(child: Text('존재하지 않는 책입니다.')));
-    }
-
-    print('📍 데이터 로드 완료: $bookDetailData'); // 데이터 로드 성공 후 한번만 출력
 
     final title = bookDetailData.items?[0].title ?? '제목 없음';
     final formattedTitle = format.formatTitle(title)[0];
@@ -204,11 +199,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final formattedCategories = format.formatCategoryName(category);
     final itemPage = bookDetailData.items?[0].subInfo?.itemPage ?? 0;
     final publisher = bookDetailData.items?[0].publisher ?? '출판사 정보 없음';
-    final cover = bookDetailData.items?[0].cover ?? '';
-    final pubDate = bookDetailData.items?[0].pubDate ?? '';
-    final formattedPubDate = format.formatYearFromPubDate(pubDate);
-    final description = bookDetailData.items?[0].description ?? '설명 없음';
-
+    String cover = bookDetailData.items?[0].cover ?? '';
+    String pubDate = bookDetailData.items?[0].pubDate ?? '';
+    String formattedPubDate = format.formatYearFromPubDate(pubDate);
+    String description = bookDetailData.items?[0].description ?? '설명 없음';
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
@@ -262,47 +256,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ),
                               ),
                               SizedBox(height: 10),
-                              infoRow('저자', author ?? ''),
+                              infoRow('저자', author),
                               SizedBox(height: 2),
                               infoRow('카테고리', formattedCategories),
                               SizedBox(height: 2),
                               infoRow('쪽수', itemPage.toString()),
                               SizedBox(height: 2),
-                              infoRow('출판사', publisher ?? ''),
+                              infoRow('출판사', publisher),
                             ],
                           ),
                         ),
-                        Expanded(
-                          flex: 4,
-                          child: Image.network(
-                            cover,
-                            width: 130,
-                            height: 150,
-                            loadingBuilder: (
-                              BuildContext context,
-                              Widget child,
-                              ImageChunkEvent? loadingProgress,
-                            ) {
-                              if (loadingProgress == null) {
-                                return child; // 이미지 로딩 완료
-                              } else {
-                                return Center(
-                                  child: CircularProgressIndicator(
-                                    value:
-                                        loadingProgress.expectedTotalBytes !=
-                                                null
-                                            ? loadingProgress
-                                                    .cumulativeBytesLoaded /
-                                                (loadingProgress
-                                                        .expectedTotalBytes ??
-                                                    1)
-                                            : null,
-                                  ),
-                                );
-                              }
-                            },
-                          ),
-                        ),
+                        Expanded(flex: 4, child: Image.network(cover)),
                       ],
                     ),
                     Row(
@@ -317,6 +281,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                           ),
                       ],
                     ),
+
                     SizedBox(height: 20),
                     Align(
                       alignment: Alignment.centerLeft,
@@ -475,7 +440,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             style: const TextStyle(fontSize: 14, color: GRAY900),
           ),
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 15),
         Expanded(
           child: Text(
             content,
