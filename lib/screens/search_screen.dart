@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../components/book_list_cell.dart';
-import '../models/book_response.dart';
 import '../providers/book_provider.dart';
 
 class SearchScreen extends StatefulWidget {
@@ -47,15 +46,36 @@ class _SearchScreenState extends State<SearchScreen> {
           _buildSearchBar(bookProvider),
           if (bookProvider.bookSearchData != null)
             _buildListHeader(bookProvider),
-          // 로딩 중일 때만 CircularProgressIndicator를 표시
-          if (isLoading)
+
+          // 1. 검색어가 비어 있을 경우
+          if (searchController.text.isEmpty)
             Expanded(
-              child: Center(
-                child: const CircularProgressIndicator(color: POINT_COLOR),
+              child: const Center(
+                child: Text(
+                  '검색어를 입력해주세요.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
               ),
             ),
-
-          if (!isLoading && bookProvider.bookSearchData != null)
+          // 2. 데이터 로딩 중
+          if (bookProvider.isLoading && searchController.text.isNotEmpty)
+            Expanded(child: const Center(child: CircularProgressIndicator())),
+          if (!bookProvider.isLoading &&
+              bookProvider.bookSearchData == null &&
+              searchController.text.isNotEmpty)
+            Expanded(
+              child: Center(
+                child: Text(
+                  '검색 결과가 없습니다.',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+              ),
+            ),
+          // 3. 결과값이 있을 경우
+          if (bookProvider.bookSearchData != null &&
+              bookProvider.bookSearchData!.items!.isNotEmpty &&
+              !bookProvider.isLoading &&
+              searchController.text.isNotEmpty)
             _buildSearchResult(bookProvider),
         ],
       ),
@@ -131,47 +151,43 @@ class _SearchScreenState extends State<SearchScreen> {
               suffixIcon: GestureDetector(
                 child: const Icon(Icons.search),
                 onTap: () {
-                  isLoading = true;
+                  //키보드 내리기
+                  FocusScope.of(context).unfocus();
                   bookProvider.resetSearchData();
                   String query = searchController.text.trim();
                   if (query.isEmpty) {
                     print('검색어를 입력해주세요.');
                     return;
                   }
-                  if (_currentQueryType == '키워드') {
-                    queryType = 'Keyword';
-                  } else if (_currentQueryType == '제목') {
-                    queryType = 'Title';
-                  } else if (_currentQueryType == '저자') {
-                    queryType = 'Author';
-                  } else if (_currentQueryType == '출판사') {
-                    queryType = 'Publisher';
+                  switch (_currentQueryType) {
+                    case '키워드':
+                      queryType = 'Keyword';
+                      break;
+                    case '제목':
+                      queryType = 'Title';
+                      break;
+                    case '저자':
+                      queryType = 'Author';
+                      break;
+                    case '출판사':
+                      queryType = 'Publisher';
+                      break;
                   }
-
-                  if (_currentSort == '관련순') {
-                    sort = 'Accuracy';
-                  } else if (_currentSort == '제목순') {
-                    sort = 'Title';
-                  } else if (_currentSort == '판매량순') {
-                    sort = 'Sales';
+                  switch (_currentSort) {
+                    case '관련순':
+                      sort = 'Accuracy';
+                      break;
+                    case '제목순':
+                      sort = 'Title';
+                      break;
+                    case '판매량순':
+                      sort = 'Sales';
+                      break;
                   }
-                  // 검색어가 있을 경우에만 상태 변경
-                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                    // 대기 후 데이터 요청
-                    Future.delayed(Duration(milliseconds: 500), () {
-                      Provider.of<BookProvider>(context, listen: false)
-                          .fetchSearchResult(
-                            query,
-                            _currentQueryType,
-                            _currentSort,
-                          )
-                          .then((_) {
-                            setState(() {
-                              isLoading = false; // 데이터가 로드되면 로딩 종료
-                            });
-                          });
-                    });
-                  });
+                  Provider.of<BookProvider>(
+                    context,
+                    listen: false,
+                  ).fetchSearchResult(query, queryType, sort);
                 },
               ),
             ),
@@ -231,8 +247,9 @@ class _SearchScreenState extends State<SearchScreen> {
       child: ListView.builder(
         itemCount: bookProvider.bookSearchData!.items!.length,
         itemBuilder: (context, index) {
-          final bookItem = bookProvider.bookSearchData!.items![index];
-          return BookListCell(bookItem: bookItem);
+          return BookListCell(
+            bookItem: bookProvider.bookSearchData!.items![index],
+          );
         },
       ),
     );

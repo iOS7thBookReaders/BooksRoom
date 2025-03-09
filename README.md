@@ -1,10 +1,12 @@
-# books_room
+# Books Room
 
-A new Flutter project.
+This is a new Flutter project.
 
 ## Getting Started
 
 This project is a starting point for a Flutter application.
+
+![image](https://velog.velcdn.com/images/jojo_devstory/post/1b2fa208-846b-4cc8-b109-72c30382cead/flutter-logo-sharing.png)
 
 A few resources to get you started if this is your first Flutter project:
 
