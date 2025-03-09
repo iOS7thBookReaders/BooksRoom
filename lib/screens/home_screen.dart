@@ -205,14 +205,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         ],
       ),
     );
-
-    // ListView.builder(
-    //   shrinkWrap: true,
-    //   itemCount: bookData.items?.length,
-    //   itemBuilder: (context, index) {
-    //     return BookListCell(bookItem: bookData.items![index]);
-    //   },
-    // );
   }
 
   Widget buildReadingListView() {

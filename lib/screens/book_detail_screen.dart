@@ -24,7 +24,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   bool isWishing = false;
   bool isReading = false;
   bool isReviewed = false;
-  int starRating = 0;
   bool isDataLoaded = false; // 데이터가 이미 로드되었는지 여부 체크
 
   // Firebase 서비스 인스턴스
@@ -37,17 +36,23 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final bookProvider = Provider.of<BookProvider>(context, listen: false);
 
-      if (!isDataLoaded) {
-        bookProvider.fetchBookDetail(widget.bookISBN).then((_) {
-          setState(() {
-            isDataLoaded = true;
-          });
-          _checkAndSaveBookIfNeeded();
-        });
-      }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadData();
+    });
+  }
+
+  Future<void> _loadData() async {
+    final bookProvider = Provider.of<BookProvider>(context, listen: false);
+    bookProvider.resetBookDetailData();
+    // 강제 기다림.. api호출을 위해 잠시 멈춤(?)
+    await Future.delayed(Duration(seconds: 1));
+
+    bookProvider.fetchBookDetail(widget.bookISBN).then((_) {
+      setState(() {
+        isDataLoaded = true;
+      });
+      _checkAndSaveBookIfNeeded();
     });
   }
 
@@ -66,10 +71,9 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           isWishing = savedBook.isWishing;
           isReading = savedBook.isReading;
           isReviewed = savedBook.isReviewed;
-          starRating = savedBook.starRating ?? 0;
         });
         print(
-          '저장된 책 정보: 찜=${savedBook.isWishing}, 읽는중=${savedBook.isReading}, 리뷰=${savedBook.isReviewed}, 별점=${savedBook.starRating}',
+          '저장된 책 정보: 찜=${savedBook.isWishing}, 읽는중=${savedBook.isReading}, 리뷰=${savedBook.isReviewed}',
         );
       } else {
         // 저장된 책이 없으면 API에서 가져온 정보를 Firebase에 저장
@@ -107,7 +111,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     required bool isWishing,
     required bool isReading,
     required bool isReviewed,
-    required int? starRating,
   }) async {
     if (_savedBookModel == null) {
       print('저장된 책 모델이 없어 상태를 업데이트할 수 없습니다');
@@ -124,7 +127,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         isWishing: isWishing,
         isReading: isReading,
         isReviewed: isReviewed,
-        starRating: starRating,
       );
 
       await _bookFirebaseService.saveBook(updatedModel);
@@ -181,10 +183,18 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     print(bookDetailData);
 
     if (bookDetailData == null) {
-      return Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: Text('책 정보'), backgroundColor: Colors.white),
+        body: Center(child: CircularProgressIndicator(color: MAIN_COLOR)),
+      );
     } else {
       if (bookDetailData.items!.isEmpty) {
-        return Scaffold(body: Center(child: Text('존재하지 않는 책입니다.')));
+        return Scaffold(
+          appBar: AppBar(title: Text('책 정보'), backgroundColor: Colors.white),
+
+          body: Center(child: Text('존재하지 않는 책입니다.')),
+        );
       }
     }
 
@@ -267,15 +277,54 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             ],
                           ),
                         ),
-                        Expanded(flex: 4, child: Image.network(cover)),
+                        Expanded(
+                          flex: 4,
+                          child:
+                              cover.isNotEmpty
+                                  ? Image.network(
+                                    cover,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      // 이미지 로드 실패시 대체 UI
+                                      return Container(
+                                        color: Colors.grey.shade300,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.book,
+                                            size: 50,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  )
+                                  : Container(
+                                    color: Colors.grey.shade300,
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.book,
+                                        size: 50,
+                                        color: Colors.grey.shade700,
+                                      ),
+                                    ),
+                                  ),
+                        ),
+                      ],
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        for (int i = 0; i < 5; i++)
+                          Icon(
+                            Icons.star_outline_outlined,
+                            color: GRAY200_LINE,
+                            size: 50,
+                          ),
                       ],
                     ),
 
-                    // 별점 섹션
-                    buildStarRating(),
                     SizedBox(height: 20),
-
-                    // 작품 정보 섹션
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
@@ -321,7 +370,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     isWishing: isWishing,
                                     isReading: isReading,
                                     isReviewed: isReviewed,
-                                    starRating: starRating,
                                   );
                                 },
                       ),
@@ -352,10 +400,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 ? null
                                 : () {
                                   setState(() {
-                                    // 읽기 시작할 때(false->true) isWishing을 false로 설정
-                                    if (!isReading) {
-                                      isWishing = false;
-                                    }
                                     isReading = !isReading;
                                   });
                                   // firebase 업데이트
@@ -363,7 +407,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                     isWishing: isWishing,
                                     isReading: isReading,
                                     isReviewed: isReviewed,
-                                    starRating: starRating,
                                   );
                                 },
                       ),
@@ -400,7 +443,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                       isWishing: isWishing,
                                       isReading: isReading,
                                       isReviewed: isReviewed,
-                                      starRating: starRating,
                                     ).then((_) {
                                       // 그 후 리뷰 화면으로 이동
                                       _navigateToReviewScreen();
@@ -449,40 +491,6 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget buildStarRating() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: List.generate(5, (index) {
-        return IconButton(
-          icon: Icon(
-            index < starRating ? Icons.star : Icons.star_border_outlined,
-            color: index < starRating ? MAIN_COLOR : GRAY200_LINE,
-            size: 50,
-          ),
-          onPressed: () {
-            setState(() {
-              if (starRating == index + 1) {
-                starRating = 0;
-              } else {
-                starRating = index + 1;
-                isWishing = false;
-                isReading = false;
-              }
-            });
-
-            _updateBookStatus(
-              isWishing: isWishing,
-              isReading: isReading,
-              isReviewed: isReviewed,
-              starRating: starRating,
-            );
-          },
-        );
-      }),
     );
   }
 }

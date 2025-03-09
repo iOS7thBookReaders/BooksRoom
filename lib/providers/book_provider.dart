@@ -48,6 +48,11 @@ class BookProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void resetBookDetailData() {
+    _bookDetailData = null;
+    notifyListeners(); // 상태 변경을 알리기 위해 호출
+  }
+
   Future<void> fetchBookBestseller() async {
     _isLoading = true;
     notifyListeners();

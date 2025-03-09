@@ -11,11 +11,7 @@ class BookListCell extends StatefulWidget {
   final BookItem bookItem;
   final String imageUrl;
 
-  const BookListCell({
-    super.key,
-    required this.bookItem,
-    this.imageUrl = 'https://picsum.photos/seed/picsum/80/100',
-  });
+  const BookListCell({super.key, required this.bookItem, this.imageUrl = ''});
 
   @override
   State<BookListCell> createState() => _BookListCellState();
