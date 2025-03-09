@@ -8,32 +8,30 @@ import 'package:flutter/material.dart';
 import 'package:books_room/models/book_request.dart';
 import 'package:books_room/models/book_response.dart';
 
-import '../models/book_model.dart';
-
 class BookProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
   BookResponse? _bookSearchData;
 
-  // Firestore 인스턴스
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  // // Firestore 인스턴스
+  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
-  // Auth 인스턴스 - 현재 로그인한 사용자 확인용
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  // // Auth 인스턴스 - 현재 로그인한 사용자 확인용
+  // final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // 현재 로그인한 사용자 이메일 가져오기
-  String? get currentUserEmail => _auth.currentUser?.email;
+  // // 현재 로그인한 사용자 이메일 가져오기
+  // String? get currentUserEmail => _auth.currentUser?.email;
 
-  // 사용자 컬렉션 참조
-  CollectionReference get usersCollection => _firestore.collection('users');
+  // // 사용자 컬렉션 참조
+  // CollectionReference get usersCollection => _firestore.collection('users');
 
-  // 현재 사용자의 책 컬렉션 참조
-  CollectionReference? get currentUserBooks {
-    final email = currentUserEmail;
-    if (email == null) return null;
-    return usersCollection.doc(email).collection('books');
-  }
+  // // 현재 사용자의 책 컬렉션 참조
+  // CollectionReference? get currentUserBooks {
+  //   final email = currentUserEmail;
+  //   if (email == null) return null;
+  //   return usersCollection.doc(email).collection('books');
+  // }
 
   int totalCount = 0;
   bool _isLoading = true;
