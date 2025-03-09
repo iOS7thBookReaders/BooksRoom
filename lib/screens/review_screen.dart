@@ -56,8 +56,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
       starRating = widget.bookModel.starRating ?? 0;
     }
 
-    if (widget.bookModel.readEndDate != null) {
-      selectedReadEndDate = widget.bookModel.readEndDate;
+    if (widget.bookModel.readEndDate1 != null) {
+      selectedReadEndDate = widget.bookModel.readEndDate1;
     }
 
     // 한줄평 텍스트 변경 리스너
@@ -118,7 +118,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         oneLineComment: oneLineCommentController.text,
         starRating: starRating,
         isReviewed: true, // 리뷰 작성 시 true로 설정
-        readEndDate: selectedReadEndDate,
+        readEndDate1: selectedReadEndDate,
         isReading: false, // 리뷰 작성시 false로 설정
       );
 
@@ -366,7 +366,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         ),
                         onPressed: () {
                           setState(() {
-                            starRating = index + 1;
+                            if (starRating == index + 1) {
+                              starRating = 0;
+                            } else {
+                              starRating = index + 1;
+                            }
                           });
                         },
                       );

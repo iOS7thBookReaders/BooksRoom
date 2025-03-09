@@ -468,9 +468,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           ),
           onPressed: () {
             setState(() {
-              starRating = index + 1;
-              isWishing = false;
-              isReading = false;
+              if (starRating == index + 1) {
+                starRating = 0;
+              } else {
+                starRating = index + 1;
+                isWishing = false;
+                isReading = false;
+              }
             });
 
             _updateBookStatus(

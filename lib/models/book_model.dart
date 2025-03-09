@@ -18,7 +18,7 @@ class BookModel {
   int? starRating;
 
   // 날짜 관련 필드
-  DateTime? readEndDate; // 독서 완료 날짜
+  DateTime? readEndDate1; // 독서 완료 날짜
 
   // 상태 필드
   bool isWishing;
@@ -39,7 +39,7 @@ class BookModel {
     this.review,
     this.oneLineComment,
     this.starRating,
-    this.readEndDate,
+    this.readEndDate1,
     this.isWishing = false, // 기본값 false
     this.isReading = false, // 기본값 false
     this.isReviewed = false, // 기본값 false
@@ -50,9 +50,9 @@ class BookModel {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
     // Timestamp를 DateTime으로 변환
-    DateTime? readEndDate;
-    if (data['readEndDate'] != null) {
-      readEndDate = (data['readEndDate'] as Timestamp).toDate();
+    DateTime? readEndDate1;
+    if (data['readEndDate1'] != null) {
+      readEndDate1 = (data['readEndDate1'] as Timestamp).toDate();
     }
 
     return BookModel(
@@ -68,7 +68,7 @@ class BookModel {
       review: data['review'],
       oneLineComment: data['oneLineComment'],
       starRating: data['starRating'],
-      readEndDate: readEndDate,
+      readEndDate1: readEndDate1,
       isWishing: data['isWishing'] ?? false,
       isReading: data['isReading'] ?? false,
       isReviewed: data['isReviewed'] ?? false,
@@ -89,7 +89,7 @@ class BookModel {
       'review': review,
       'oneLineComment': oneLineComment,
       'starRating': starRating,
-      'readEndDate': readEndDate,
+      'readEndDate1': readEndDate1,
       'isWishing': isWishing,
       'isReading': isReading,
       'isReviewed': isReviewed,
@@ -110,7 +110,7 @@ class BookModel {
     String? review,
     String? oneLineComment,
     int? starRating,
-    DateTime? readEndDate,
+    DateTime? readEndDate1,
     bool? isWishing,
     bool? isReading,
     bool? isReviewed,
@@ -128,7 +128,7 @@ class BookModel {
       review: review ?? this.review,
       oneLineComment: oneLineComment ?? this.oneLineComment,
       starRating: starRating ?? this.starRating,
-      readEndDate: readEndDate ?? this.readEndDate,
+      readEndDate1: readEndDate1 ?? this.readEndDate1,
       isWishing: isWishing ?? this.isWishing,
       isReading: isReading ?? this.isReading,
       isReviewed: isReviewed ?? this.isReviewed,
