@@ -1,9 +1,10 @@
 import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:table_calendar/table_calendar.dart';
 
-import '../components/book_list_cell.dart';
 import '../models/book_model.dart';
+import '../services/review_firebase_service.dart';
 
 class CalendarScreen extends StatefulWidget {
   const CalendarScreen({super.key});
@@ -13,12 +14,33 @@ class CalendarScreen extends StatefulWidget {
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  final ReviewFirebaseService _reviewFirebaseService = ReviewFirebaseService();
+  List<BookModel> bookList = [];
+  bool _isBooksLoading = true;
+
   DateTime selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
     DateTime.now().day,
   );
   DateTime focusedDay = DateTime.now();
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCalendarData();
+  }
+
+  void _loadCalendarData() {
+    _reviewFirebaseService.getBooksMatchWithCalendar(selectedDay).listen((
+      books,
+    ) {
+      setState(() {
+        bookList = books;
+        _isBooksLoading = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,9 +52,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
         scrolledUnderElevation: 0,
       ),
       backgroundColor: Colors.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: SingleChildScrollView(
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
               TableCalendar(
@@ -85,33 +107,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   markersAlignment: Alignment.bottomCenter,
                   markersMaxCount: 1,
                   markersOffset: const PositionedOffset(),
-
                   // marker 모양
                   markerDecoration: const BoxDecoration(
                     color: Colors.black,
                     shape: BoxShape.circle,
                   ),
                 ),
-
+                // 날짜 선택시 변경
                 onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
-                  // 선택된 날짜의 상태를 갱신합니다.
                   setState(() {
+                    bookList = [];
                     this.selectedDay = selectedDay;
                     this.focusedDay = focusedDay;
                   });
+                  _loadCalendarData();
                 },
+
                 selectedDayPredicate: (DateTime day) {
-                  // selectedDay 와 동일한 날짜의 모양을 바꿔줍니다.
                   return isSameDay(selectedDay, day);
                 },
-                // eventLoader: _fetchBookEvents,
               ),
-
-              ListView.builder(
+              Divider(color: GRAY200_LINE),
+              ListView.separated(
+                separatorBuilder: (context, index) {
+                  return const Divider(height: 1, color: GRAY200_LINE);
+                },
                 shrinkWrap: true,
-                itemCount: 30,
+                physics: NeverScrollableScrollPhysics(),
+                itemCount: bookList.length,
                 itemBuilder: (context, index) {
-                  return const Text('data');
+                  return _buildReviewCell(bookList[index]);
                 },
               ),
             ],
@@ -121,7 +146,53 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  // List<BookModel> _fetchBookEvents() {
-  //   return [BookModel()];
-  // }
+  Widget _buildReviewCell(BookModel item) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                item.title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                item.author,
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Text(
+                '${item.oneLineComment}',
+                style: const TextStyle(fontSize: 14),
+              ),
+              Spacer(),
+              Row(
+                children: [
+                  for (int i = 0; i < 5; i++)
+                    if (i < item.starRating!)
+                      const Icon(Icons.star, color: MAIN_COLOR, size: 20)
+                    else
+                      const Icon(
+                        Icons.star_outline_outlined,
+                        color: GRAY300_DISABLE,
+                        size: 20,
+                      ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
 }

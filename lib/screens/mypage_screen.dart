@@ -118,7 +118,7 @@ class _MypageScreenState extends State<MypageScreen> {
                       ),
                       Text(userEmailString, style: TextStyle(fontSize: 18)),
                       Text(
-                        Format().formaDate(userCreateDateString),
+                        Format().formatDate(userCreateDateString),
                         style: TextStyle(fontSize: 12),
                       ),
                     ],

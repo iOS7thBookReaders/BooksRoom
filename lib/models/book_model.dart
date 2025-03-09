@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:books_room/models/book_response.dart';
 
+import '../components/format.dart';
+
 class BookModel {
   final String isbn13; // 문서 ID로 사용할 ISBN
   final String title;
@@ -18,7 +20,7 @@ class BookModel {
   int? starRating;
 
   // 날짜 관련 필드
-  DateTime? readEndDate; // 독서 완료 날짜
+  String? readEndDate; // 독서 완료 날짜
 
   // 상태 필드
   bool isWishing;
@@ -49,10 +51,10 @@ class BookModel {
   factory BookModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    // Timestamp를 DateTime으로 변환
-    DateTime? readEndDate;
+    // Timestamp를 String으로 변환
+    String? readEndDate;
     if (data['readEndDate'] != null) {
-      readEndDate = (data['readEndDate'] as Timestamp).toDate();
+      readEndDate = Format().formatDate(data['readEndDate']);
     }
 
     return BookModel(
@@ -110,7 +112,7 @@ class BookModel {
     String? review,
     String? oneLineComment,
     int? starRating,
-    DateTime? readEndDate,
+    String? readEndDate,
     bool? isWishing,
     bool? isReading,
     bool? isReviewed,

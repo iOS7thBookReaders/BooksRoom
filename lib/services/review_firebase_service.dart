@@ -3,6 +3,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../components/format.dart';
 import '../models/book_model.dart';
 
 class ReviewFirebaseService {
@@ -140,7 +141,7 @@ class ReviewFirebaseService {
     });
   }
 
-  // 리뷰 목록 가져오기 (isWishing이 true인 책들)
+  // 리뷰 목록 가져오기 (isReviewed가 true인 책들)
   Stream<List<BookModel>> getReviewBooks() {
     final booksRef = currentUserBooks;
     if (booksRef == null) {
@@ -155,5 +156,22 @@ class ReviewFirebaseService {
       _reviewBooksCount = count;
       return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
     });
+  }
+
+  Stream<List<BookModel>> getBooksMatchWithCalendar(DateTime selectedDate) {
+    final booksRef = currentUserBooks;
+    String findDate = Format().formatDateToString(selectedDate);
+    if (booksRef == null) {
+      return Stream.value([]);
+    }
+    return booksRef
+        .where('isReviewed', isEqualTo: true)
+        .where('readEndDate', isEqualTo: findDate)
+        .snapshots()
+        .map((snapshot) {
+          return snapshot.docs
+              .map((doc) => BookModel.fromFirestore(doc))
+              .toList();
+        });
   }
 }

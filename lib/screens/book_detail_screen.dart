@@ -195,10 +195,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     final formattedCategories = format.formatCategoryName(category);
     final itemPage = bookDetailData.items?[0].subInfo?.itemPage ?? 0;
     final publisher = bookDetailData.items?[0].publisher ?? '출판사 정보 없음';
-    String cover = bookDetailData.items?[0].cover ?? '';
-    String pubDate = bookDetailData.items?[0].pubDate ?? '';
-    String formattedPubDate = format.formatYearFromPubDate(pubDate);
-    String description = bookDetailData.items?[0].description ?? '설명 없음';
+    final cover = bookDetailData.items?[0].cover ?? '';
+    final pubDate = bookDetailData.items?[0].pubDate ?? '';
+    final formattedPubDate = format.formatYearFromPubDate(pubDate);
+    final description = bookDetailData.items?[0].description ?? '설명 없음';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -431,13 +431,13 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 80,
+          width: 50,
           child: Text(
             label,
             style: const TextStyle(fontSize: 14, color: GRAY900),
           ),
         ),
-        const SizedBox(width: 15),
+        const SizedBox(width: 20),
         Expanded(
           child: Text(
             content,

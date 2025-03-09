@@ -1,3 +1,5 @@
+import 'package:intl/intl.dart';
+
 class Format {
   String formatCategoryName(String categoryName) {
     // > 기준 분리
@@ -25,8 +27,13 @@ class Format {
     return date.year.toString();
   }
 
-  String formaDate(String dateString) {
+  String formatDate(String dateString) {
     String formattedDate = dateString.split(' ')[0]; // 공백 기준으로 날짜만 추출
     return formattedDate;
+  }
+
+  String formatDateToString(DateTime date) {
+    // Format the DateTime object to a string (yyyy-MM-dd format)
+    return DateFormat('yyyy-MM-dd').format(date);
   }
 }

@@ -194,17 +194,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text(
-              '이번주 베스트셀러',
-              style: TextStyle(
-                color: POINT_COLOR,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          SizedBox(height: 20),
           if (bookData.items != null)
             Column(
               children:
@@ -237,17 +227,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text(
-              '읽고 있는 책',
-              style: TextStyle(
-                color: POINT_COLOR,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          SizedBox(height: 20),
           Column(
             children:
                 _readingBooks.map((book) {
@@ -272,17 +252,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 10.0),
-            child: Text(
-              '찜한 책',
-              style: TextStyle(
-                color: POINT_COLOR,
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ),
+          SizedBox(height: 20),
           Column(
             children:
                 _wishingBooks.map((book) {

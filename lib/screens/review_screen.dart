@@ -7,6 +7,8 @@ import 'package:books_room/components/color.dart';
 import 'package:books_room/models/book_model.dart';
 import 'package:books_room/services/review_firebase_service.dart';
 
+import '../components/format.dart';
+
 class ReviewScreen extends StatefulWidget {
   final BookModel bookModel;
   final ReviewFirebaseService firebaseService;
@@ -57,7 +59,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
     }
 
     if (widget.bookModel.readEndDate != null) {
-      selectedReadEndDate = widget.bookModel.readEndDate;
+      selectedReadEndDate = DateTime.parse(widget.bookModel.readEndDate!);
     }
 
     // 한줄평 텍스트 변경 리스너
@@ -108,6 +110,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
   // 리뷰 저장 메서드
   void _saveReview() async {
     print('리뷰 저장 시작');
+    String? formattedReadEndDate;
+    if (selectedReadEndDate != null) {
+      formattedReadEndDate = dateFormat.format(selectedReadEndDate!);
+    }
     try {
       print('저장할 한줄평: ${oneLineCommentController.text}');
       print('저장할 별점: $starRating');
@@ -118,7 +124,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         oneLineComment: oneLineCommentController.text,
         starRating: starRating,
         isReviewed: true, // 리뷰 작성 시 true로 설정
-        readEndDate: selectedReadEndDate,
+        readEndDate: formattedReadEndDate.toString(),
         isReading: false, // 리뷰 작성시 false로 설정
       );
 
@@ -155,8 +161,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
     final coverUrl = widget.bookModel.coverUrl ?? '';
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('도서 리뷰'),
+        backgroundColor: Colors.white,
+
+        elevation: 0,
+        scrolledUnderElevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () {
@@ -220,8 +231,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
                           children: [
                             _bookInfoRow('저자', author),
                             _bookInfoRow('출판사', publisher),
-                            _bookInfoRow('장르', genre),
-                            _bookInfoRow('발행일', publishDate),
+                            _bookInfoRow(
+                              '카테고리',
+                              Format().formatCategoryName(genre),
+                            ),
+                            _bookInfoRow(
+                              '발행연도',
+                              Format().formatYearFromPubDate(publishDate),
+                            ),
                             _bookInfoRow('페이지', page),
                           ],
                         ),
