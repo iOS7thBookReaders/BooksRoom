@@ -2,8 +2,6 @@
 
 import 'package:books_room/services/api_service.dart';
 import 'package:books_room/key.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:books_room/models/book_request.dart';
 import 'package:books_room/models/book_response.dart';
@@ -13,33 +11,17 @@ class BookProvider with ChangeNotifier {
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
   BookResponse? _bookSearchData;
-
-  // // Firestore 인스턴스
-  // final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
-  // // Auth 인스턴스 - 현재 로그인한 사용자 확인용
-  // final FirebaseAuth _auth = FirebaseAuth.instance;
-
-  // // 현재 로그인한 사용자 이메일 가져오기
-  // String? get currentUserEmail => _auth.currentUser?.email;
-
-  // // 사용자 컬렉션 참조
-  // CollectionReference get usersCollection => _firestore.collection('users');
-
-  // // 현재 사용자의 책 컬렉션 참조
-  // CollectionReference? get currentUserBooks {
-  //   final email = currentUserEmail;
-  //   if (email == null) return null;
-  //   return usersCollection.doc(email).collection('books');
-  // }
-
   int totalCount = 0;
   bool _isLoading = true;
+  bool hasMoreData = true;
+  int currentPage = 1;
+  final int pageSize = 20;
+
   BookResponse? get bookDetailData => _bookDetailData;
   BookResponse? get booksBestsellerData => _booksBestsellerData;
   BookResponse? get bookSearchData => _bookSearchData;
-
   bool get isLoading => _isLoading;
+  bool get hasMore => hasMoreData;
 
   void resetSearchData() {
     _bookSearchData = null;
@@ -51,7 +33,15 @@ class BookProvider with ChangeNotifier {
     notifyListeners(); // 상태 변경을 알리기 위해 호출
   }
 
-  Future<void> fetchBookBestseller() async {
+  void resetPagination() {
+    currentPage = 1;
+    _booksBestsellerData = null;
+    hasMoreData = true;
+  }
+
+  Future<void> fetchBookBestseller(int page) async {
+    // 로딩중 && 데이터 더 없음
+    if (_isLoading || !hasMoreData) return;
     _isLoading = true;
     notifyListeners();
     try {
@@ -67,8 +57,14 @@ class BookProvider with ChangeNotifier {
         ),
       );
 
-      _booksBestsellerData = response;
-      _isLoading = false;
+      if (response.items == null || response.items!.isEmpty) {
+        hasMoreData = false;
+      } else {
+        _booksBestsellerData = response;
+        _isLoading = false;
+        currentPage = page;
+        totalCount = response.totalResults;
+      }
       notifyListeners();
     } catch (e) {
       print("Error fetching bestseller: $e");
@@ -106,7 +102,9 @@ class BookProvider with ChangeNotifier {
     String query,
     String? queryType,
     String? sort,
+    int page,
   ) async {
+    if (_isLoading || !hasMoreData) return null;
     _isLoading = true;
     notifyListeners();
     try {
@@ -119,25 +117,28 @@ class BookProvider with ChangeNotifier {
           queryType: queryType,
           sort: sort,
           maxResults: 20,
-          start: 1,
+          start: page,
           searchTarget: 'Book',
         ),
       );
       if (response.items != null && response.items!.isNotEmpty) {
         _bookSearchData = response;
       } else {
-        _bookSearchData = null;
+        _bookSearchData!.items!.addAll(response.items!);
       }
       totalCount = response.totalResults;
+      currentPage++;
+      if (_bookSearchData!.items!.length >= _bookSearchData!.totalResults) {
+        hasMoreData = false; // 더 이상 데이터가 없으면 hasMoreData를 false로 설정
+      }
 
       _isLoading = false;
-      notifyListeners();
-      return _bookSearchData;
+      notifyListeners(); // 상태 업데이트
     } catch (e) {
-      print("Error fetching search results: $e");
+      print('Error fetching search result: $e');
       _isLoading = false;
       notifyListeners();
-      return null;
     }
+    return null;
   }
 }

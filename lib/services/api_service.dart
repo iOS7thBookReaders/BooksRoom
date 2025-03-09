@@ -30,6 +30,8 @@ class ApiService {
         throw Exception('Failed to load data!');
       }
     } catch (e) {
+      print('Error fetching data: $e');
+
       throw Exception(e.toString());
     }
   }
@@ -52,6 +54,8 @@ class ApiService {
         throw Exception('Failed to load data!');
       }
     } catch (e) {
+      print('Error fetching data: $e');
+
       throw Exception(e.toString());
     }
   }

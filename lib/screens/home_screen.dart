@@ -43,7 +43,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
-      bookProvider.fetchBookBestseller();
+      bookProvider.fetchBookBestseller(bookProvider.currentPage);
 
       // 읽고 있는 책 데이터 구독
       _loadReadingBooks();
@@ -68,6 +68,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     }
+
+    // if (_scrollController.position.pixels ==
+    //         _scrollController.position.maxScrollExtent &&
+    //     !_isLoadingNextPage &&
+    //     hasMoreData) {
+    //   // 끝에 도달하면, 다음 페이지 로드
+    //   setState(() {
+    //     _isLoadingNextPage = true;
+    //   });
+    //   final bookProvider = Provider.of<BookProvider>(context, listen: false);
+    //   // 페이지 증가
+    //   currentPage++;
+    //   bookProvider.fetchBookBestseller(currentPage, 20).then((_) {
+    //     setState(() {
+    //       _isLoadingNextPage = false;
+    //     });
+    //   });
+    // }
   }
 
   // 읽고 있는 책 로드 메서드
