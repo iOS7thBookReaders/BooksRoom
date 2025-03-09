@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'package:books_room/components/color.dart';
 import 'package:books_room/models/book_model.dart';
@@ -27,6 +28,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
   int starRating = 0;
   String oneLineCommentLength = '0/20'; // 한줄평 글자수
 
+  // 읽은 날짜 관련 변수
+  DateTime? selectedReadEndDate;
+  final DateFormat dateFormat = DateFormat('yyyy-MM-dd');
+
   @override
   void initState() {
     super.initState();
@@ -51,6 +56,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
       starRating = widget.bookModel.starRating ?? 0;
     }
 
+    if (widget.bookModel.readEndDate != null) {
+      selectedReadEndDate = widget.bookModel.readEndDate;
+    }
+
     // 한줄평 텍스트 변경 리스너
     oneLineCommentController.addListener(_updateOneLineCommentLength);
   }
@@ -72,6 +81,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
     super.dispose();
   }
 
+  // 날짜 선택기 열기
+  Future<void> _selectDate(BuildContext context) async {
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: selectedReadEndDate ?? DateTime.now(),
+      firstDate: DateTime(2000),
+      lastDate: DateTime.now(),
+      builder: (context, child) {
+        return Theme(
+          data: Theme.of(
+            context,
+          ).copyWith(colorScheme: ColorScheme.light(primary: MAIN_COLOR)),
+          child: child!,
+        );
+      },
+    );
+
+    if (picked != null && picked != selectedReadEndDate) {
+      setState(() {
+        selectedReadEndDate = picked;
+      });
+    }
+  }
+
   // 리뷰 저장 메서드
   void _saveReview() async {
     print('리뷰 저장 시작');
@@ -85,6 +118,8 @@ class _ReviewScreenState extends State<ReviewScreen> {
         oneLineComment: oneLineCommentController.text,
         starRating: starRating,
         isReviewed: true, // 리뷰 작성 시 true로 설정
+        readEndDate: selectedReadEndDate,
+        isReading: false, // 리뷰 작성시 false로 설정
       );
 
       // 파이어베이스에 업데이트
@@ -211,6 +246,46 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 24.0),
+
+                  // 읽은 날짜 선택 섹션
+                  const Text(
+                    '다 읽은 날짜',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16.0,
+                    ),
+                  ),
+                  const SizedBox(height: 8.0),
+                  InkWell(
+                    onTap: () => _selectDate(context),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 12.0,
+                        horizontal: 16.0,
+                      ),
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            selectedReadEndDate != null
+                                ? dateFormat.format(selectedReadEndDate!)
+                                : '날짜를 선택해주세요',
+                            style: TextStyle(
+                              color:
+                                  selectedReadEndDate != null
+                                      ? Colors.black
+                                      : Colors.grey,
+                            ),
+                          ),
+                          Icon(Icons.calendar_today, color: GRAY500),
+                        ],
+                      ),
+                    ),
+                  ),
 
                   // 리뷰 입력 섹션
                   const Text(

@@ -17,6 +17,9 @@ class BookModel {
   String? oneLineComment;
   int? starRating;
 
+  // 날짜 관련 필드
+  DateTime? readEndDate; // 독서 완료 날짜
+
   // 상태 필드
   bool isWishing;
   bool isReading;
@@ -36,6 +39,7 @@ class BookModel {
     this.review,
     this.oneLineComment,
     this.starRating,
+    this.readEndDate,
     this.isWishing = false, // 기본값 false
     this.isReading = false, // 기본값 false
     this.isReviewed = false, // 기본값 false
@@ -44,6 +48,12 @@ class BookModel {
   // Firestore 문서에서 BookModel 객체 생성
   factory BookModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
+
+    // Timestamp를 DateTime으로 변환
+    DateTime? readEndDate;
+    if (data['readEndDate'] != null) {
+      readEndDate = (data['readEndDate'] as Timestamp).toDate();
+    }
 
     return BookModel(
       isbn13: doc.id, // 문서 ID를 ISBN으로 사용
@@ -58,6 +68,7 @@ class BookModel {
       review: data['review'],
       oneLineComment: data['oneLineComment'],
       starRating: data['starRating'],
+      readEndDate: readEndDate,
       isWishing: data['isWishing'] ?? false,
       isReading: data['isReading'] ?? false,
       isReviewed: data['isReviewed'] ?? false,
@@ -78,6 +89,7 @@ class BookModel {
       'review': review,
       'oneLineComment': oneLineComment,
       'starRating': starRating,
+      'readEndDate': readEndDate,
       'isWishing': isWishing,
       'isReading': isReading,
       'isReviewed': isReviewed,
@@ -98,6 +110,7 @@ class BookModel {
     String? review,
     String? oneLineComment,
     int? starRating,
+    DateTime? readEndDate,
     bool? isWishing,
     bool? isReading,
     bool? isReviewed,
@@ -115,6 +128,7 @@ class BookModel {
       review: review ?? this.review,
       oneLineComment: oneLineComment ?? this.oneLineComment,
       starRating: starRating ?? this.starRating,
+      readEndDate: readEndDate ?? this.readEndDate,
       isWishing: isWishing ?? this.isWishing,
       isReading: isReading ?? this.isReading,
       isReviewed: isReviewed ?? this.isReviewed,
