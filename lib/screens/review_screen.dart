@@ -29,6 +29,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
   late TextEditingController oneLineCommentController;
   int starRating = 0;
   String oneLineCommentLength = '0/20'; // 한줄평 글자수
+  bool _isEditMode = false;
 
   // 읽은 날짜 관련 변수
   DateTime? selectedReadEndDate;
@@ -58,9 +59,20 @@ class _ReviewScreenState extends State<ReviewScreen> {
       starRating = widget.bookModel.starRating ?? 0;
     }
 
-    if (widget.bookModel.readEndDate != null) {
-      selectedReadEndDate = DateTime.parse(widget.bookModel.readEndDate!);
+    // readEndDate 안전하게 처리
+    selectedReadEndDate = null; // 기본값 설정
+    if (widget.bookModel.readEndDate != null &&
+        widget.bookModel.readEndDate!.isNotEmpty) {
+      try {
+        selectedReadEndDate = DateTime.parse(widget.bookModel.readEndDate!);
+      } catch (e) {
+        print('날짜 파싱 오류: $e');
+        // 오류 발생 시 기본값 유지
+      }
     }
+
+    // 초기 모드 설정
+    _isEditMode = false;
 
     // 한줄평 텍스트 변경 리스너
     oneLineCommentController.addListener(_updateOneLineCommentLength);
@@ -163,7 +175,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('도서 리뷰'),
+        title: Text(
+          widget.bookModel.isReviewed
+              ? (_isEditMode ? '도서 리뷰 수정' : '도서 리뷰')
+              : '도서 리뷰 작성',
+        ),
         backgroundColor: Colors.white,
 
         elevation: 0,
@@ -174,6 +190,82 @@ class _ReviewScreenState extends State<ReviewScreen> {
             Navigator.pop(context);
           },
         ),
+        actions: [
+          // 보기 모드일 때만 수정 버튼 표시
+          if (widget.bookModel.isReviewed && !_isEditMode)
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () {
+                setState(() {
+                  _isEditMode = true;
+                });
+              },
+            ),
+          // 수정 모드일 때만 삭제 버튼 표시
+          if (widget.bookModel.isReviewed && _isEditMode)
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () {
+                setState(() {
+                  // 삭제 확인 다이얼로그 표시
+                  showDialog(
+                    context: context,
+                    builder:
+                        (context) => AlertDialog(
+                          title: Text('리뷰 삭제'),
+                          content: Text('이 리뷰를 삭제하시겠습니까?'),
+                          actions: [
+                            TextButton(
+                              onPressed:
+                                  () => Navigator.pop(context), // 다이얼로그 닫기
+                              child: Text('취소'),
+                            ),
+                            TextButton(
+                              onPressed: () async {
+                                // 다이얼로그 닫기
+                                Navigator.pop(context);
+
+                                try {
+                                  // 리뷰 정보 초기화하는 모델 생성
+                                  final updatedBook = widget.bookModel.copyWith(
+                                    review: '',
+                                    oneLineComment: '',
+                                    starRating: 0,
+                                    isReviewed: false,
+                                    readEndDate: '',
+                                  );
+
+                                  // Firebase에 업데이트
+                                  await widget.firebaseService.updateBook(
+                                    updatedBook,
+                                  );
+
+                                  // 성공 메시지 표시
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('리뷰가 삭제되었습니다'),
+                                    ),
+                                  );
+
+                                  // 리뷰 화면 닫고 도서 상세 화면으로 돌아가기
+                                  Navigator.of(context).pop();
+                                } catch (e) {
+                                  print('리뷰 삭제 중 오류 발생: $e');
+                                  // 오류 발생 시 메시지 표시
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text('오류가 발생했습니다: $e')),
+                                  );
+                                }
+                              },
+                              child: Text('삭제'),
+                            ),
+                          ],
+                        ),
+                  );
+                });
+              },
+            ),
+        ],
       ),
       body: Column(
         children: [
@@ -273,36 +365,53 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 8.0),
-                  InkWell(
-                    onTap: () => _selectDate(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 16.0,
+                  // 작성 모드나 수정 모드일 때는 날짜 선택 가능
+                  if (!widget.bookModel.isReviewed || _isEditMode)
+                    InkWell(
+                      onTap: () => _selectDate(context),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12.0,
+                          horizontal: 16.0,
+                        ),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey),
+                          borderRadius: BorderRadius.circular(4.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              selectedReadEndDate != null
+                                  ? dateFormat.format(selectedReadEndDate!)
+                                  : '날짜를 선택해주세요',
+                              style: TextStyle(
+                                color:
+                                    selectedReadEndDate != null
+                                        ? Colors.black
+                                        : Colors.grey,
+                              ),
+                            ),
+                            Icon(Icons.calendar_today, color: GRAY500),
+                          ],
+                        ),
                       ),
+                    )
+                  // 보기 모드일 때는 날짜만 표시
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
+                        color: GRAY50_BACKGROUND,
                         borderRadius: BorderRadius.circular(4.0),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            selectedReadEndDate != null
-                                ? dateFormat.format(selectedReadEndDate!)
-                                : '날짜를 선택해주세요',
-                            style: TextStyle(
-                              color:
-                                  selectedReadEndDate != null
-                                      ? Colors.black
-                                      : Colors.grey,
-                            ),
-                          ),
-                          Icon(Icons.calendar_today, color: GRAY500),
-                        ],
+                      child: Text(
+                        selectedReadEndDate != null
+                            ? dateFormat.format(selectedReadEndDate!)
+                            : '날짜 정보가 없습니다.',
                       ),
                     ),
-                  ),
 
                   // 리뷰 입력 섹션
                   const Text(
@@ -313,21 +422,38 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 8.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: TextField(
-                      controller: reviewController,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        hintText: '내용을 입력해주세요',
-                        contentPadding: EdgeInsets.all(12.0),
-                        border: InputBorder.none,
+                  // 작성 모드나 수정 모드일 때 텍스트필드 표시
+                  if (!widget.bookModel.isReviewed || _isEditMode)
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4.0),
                       ),
-                    ),
-                  ), // 리뷰 입력 섹션
+                      child: TextField(
+                        controller: reviewController,
+                        maxLines: 5,
+                        decoration: const InputDecoration(
+                          hintText: '내용을 입력해주세요',
+                          contentPadding: EdgeInsets.all(12.0),
+                          border: InputBorder.none,
+                        ),
+                      ),
+                    )
+                  // 보기 모드일 때는 텍스트만 표시
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: GRAY50_BACKGROUND,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        reviewController.text.isEmpty
+                            ? '리뷰가 없습니다'
+                            : reviewController.text,
+                      ),
+                    ), // 리뷰 입력 섹션
                   const SizedBox(height: 24.0),
 
                   // 한 줄 평 입력 섹션
@@ -339,29 +465,48 @@ class _ReviewScreenState extends State<ReviewScreen> {
                     ),
                   ),
                   const SizedBox(height: 8.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: TextField(
-                      controller: oneLineCommentController,
-                      maxLength: 20,
-                      decoration: const InputDecoration(
-                        hintText: '한줄평을 남겨주세요',
-                        contentPadding: EdgeInsets.all(12.0),
-                        border: InputBorder.none,
-                        counterText: '',
+                  // 작성 모드나 수정 모드일 때 텍스트필드 표시
+                  if (!widget.bookModel.isReviewed || _isEditMode)
+                    Container(
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey),
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: TextField(
+                        controller: oneLineCommentController,
+                        maxLength: 20,
+                        decoration: const InputDecoration(
+                          hintText: '한줄평을 남겨주세요',
+                          contentPadding: EdgeInsets.all(12.0),
+                          border: InputBorder.none,
+                          counterText: '',
+                        ),
+                      ),
+                    )
+                  // 보기 모드일 때는 텍스트만 표시
+                  else
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(12.0),
+                      decoration: BoxDecoration(
+                        color: GRAY50_BACKGROUND,
+                        borderRadius: BorderRadius.circular(4.0),
+                      ),
+                      child: Text(
+                        oneLineCommentController.text.isEmpty
+                            ? '한줄평이 없습니다.'
+                            : oneLineCommentController.text,
                       ),
                     ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      oneLineCommentLength,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ), // 한 줄 평 입력 섹션
+                  // 작성 모드나 수정 모드일 때만 글자 수 표시
+                  if (!widget.bookModel.isReviewed || _isEditMode)
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Text(
+                        oneLineCommentLength,
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ), // 한 줄 평 입력 섹션
                   const SizedBox(height: 8.0),
 
                   // 별점 섹션
@@ -381,11 +526,14 @@ class _ReviewScreenState extends State<ReviewScreen> {
                               index < starRating ? Colors.amber : Colors.grey,
                           size: 32,
                         ),
-                        onPressed: () {
-                          setState(() {
-                            starRating = index + 1;
-                          });
-                        },
+                        onPressed:
+                            (!widget.bookModel.isReviewed || _isEditMode)
+                                ? () {
+                                  setState(() {
+                                    starRating = index + 1;
+                                  });
+                                }
+                                : null, // 보기 모드에서는 버튼 기능 비활성화
                       );
                     }),
                   ),
@@ -396,26 +544,28 @@ class _ReviewScreenState extends State<ReviewScreen> {
           ),
 
           // 저장 버튼
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveReview,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  backgroundColor: MAIN_COLOR,
-                ),
-                child: const Text(
-                  '저장하기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+          // 작성 모드나 수정 모드일 때만 저장 버튼 표시
+          if (!widget.bookModel.isReviewed || _isEditMode)
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _saveReview,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16.0),
+                    backgroundColor: MAIN_COLOR,
+                  ),
+                  child: const Text(
+                    '저장하기',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
+            ), // 저장 버튼
         ],
       ),
     );

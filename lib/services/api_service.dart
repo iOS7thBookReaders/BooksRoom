@@ -17,6 +17,10 @@ class ApiService {
     final uri = Uri.parse(
       '$_baseURL/ItemList.aspx',
     ).replace(queryParameters: queryParameters);
+
+    // API URL 출력
+    print("API 요청 URL: $uri");
+
     try {
       final response = await http.get(uri);
       print(response.body);
