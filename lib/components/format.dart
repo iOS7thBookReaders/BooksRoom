@@ -24,4 +24,9 @@ class Format {
     // 연도만 반환
     return date.year.toString();
   }
+
+  String formaDate(String dateString) {
+    String formattedDate = dateString.split(' ')[0]; // 공백 기준으로 날짜만 추출
+    return formattedDate;
+  }
 }

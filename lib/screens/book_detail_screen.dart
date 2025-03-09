@@ -40,21 +40,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
 
       if (!isDataLoaded) {
-        // 1. API에서 책 정보 가져오기
         bookProvider.fetchBookDetail(widget.bookISBN).then((_) {
-          // 데이터 로딩이 완료된 후에 setState()를 호출하여 화면 갱신
           setState(() {
-            isDataLoaded = true; // 데이터를 이미 로드했으므로 상태를 true로 설정
+            isDataLoaded = true;
           });
-
-          // 2. Firebase에서 책 정보 확인 및 필요시 저장 (비동기 처리)
           _checkAndSaveBookIfNeeded();
         });
       }
     });
   }
 
-  // 책이 Firebase에 있는지 확인하고 없으면 저장하는 메서드
+  // 책이 Firebase에 있는지 확인하고 없으면 저장
   Future<void> _checkAndSaveBookIfNeeded() async {
     try {
       // 책이 이미 저장되어 있는지 확인
@@ -203,6 +199,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     String pubDate = bookDetailData.items?[0].pubDate ?? '';
     String formattedPubDate = format.formatYearFromPubDate(pubDate);
     String description = bookDetailData.items?[0].description ?? '설명 없음';
+
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

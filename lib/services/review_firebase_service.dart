@@ -18,7 +18,14 @@ class ReviewFirebaseService {
   // 컬렉션 레퍼런스
   CollectionReference get usersCollection => _firestore.collection('users');
 
-  // 현재 사용자의 books 컬렉션 참조 얻기
+  int _readingBooksCount = 0;
+  int _reviewBooksCount = 0;
+  int _wishingBooksCount = 0;
+
+  int get readingBooksCount => _readingBooksCount;
+  int get reviewBooksCount => _reviewBooksCount;
+  int get wishingBooksCount => _wishingBooksCount;
+
   CollectionReference? get currentUserBooks {
     final email = currentUserEmail;
     print('현재 사용자 Email: $email');
@@ -108,6 +115,10 @@ class ReviewFirebaseService {
     return booksRef.where('isReading', isEqualTo: true).snapshots().map((
       snapshot,
     ) {
+      // 문서 수 (책 개수) 추적
+      final count = snapshot.docs.length;
+      print("읽고 있는 책의 총 개수: $count");
+      _readingBooksCount = count;
       return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
     });
   }
@@ -122,6 +133,26 @@ class ReviewFirebaseService {
     return booksRef.where('isWishing', isEqualTo: true).snapshots().map((
       snapshot,
     ) {
+      final count = snapshot.docs.length;
+      print("찜한 책의 총 개수: $count");
+      _wishingBooksCount = count;
+      return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
+    });
+  }
+
+  // 리뷰 목록 가져오기 (isWishing이 true인 책들)
+  Stream<List<BookModel>> getReviewBooks() {
+    final booksRef = currentUserBooks;
+    if (booksRef == null) {
+      return Stream.value([]);
+    }
+
+    return booksRef.where('isReviewed', isEqualTo: true).snapshots().map((
+      snapshot,
+    ) {
+      final count = snapshot.docs.length;
+      print("리뷰한 책의 총 개수: $count");
+      _reviewBooksCount = count;
       return snapshot.docs.map((doc) => BookModel.fromFirestore(doc)).toList();
     });
   }
