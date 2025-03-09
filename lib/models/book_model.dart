@@ -41,6 +41,7 @@ class BookModel {
     this.review,
     this.oneLineComment,
     this.starRating,
+    this.readEndDate,
     this.isWishing = false, // 기본값 false
     this.isReading = false, // 기본값 false
     this.isReviewed = false, // 기본값 false
@@ -50,10 +51,10 @@ class BookModel {
   factory BookModel.fromFirestore(DocumentSnapshot doc) {
     Map<String, dynamic> data = doc.data() as Map<String, dynamic>;
 
-    // Timestamp를 DateTime으로 변환
-    DateTime? readEndDate;
+    // Timestamp를 String으로 변환
+    String? readEndDate;
     if (data['readEndDate'] != null) {
-      readEndDate = (data['readEndDate'] as Timestamp).toDate();
+      readEndDate = Format().formatDate(data['readEndDate']);
     }
 
     return BookModel(
@@ -69,6 +70,7 @@ class BookModel {
       review: data['review'],
       oneLineComment: data['oneLineComment'],
       starRating: data['starRating'],
+      readEndDate: readEndDate,
       isWishing: data['isWishing'] ?? false,
       isReading: data['isReading'] ?? false,
       isReviewed: data['isReviewed'] ?? false,
@@ -89,6 +91,7 @@ class BookModel {
       'review': review,
       'oneLineComment': oneLineComment,
       'starRating': starRating,
+      'readEndDate': readEndDate,
       'isWishing': isWishing,
       'isReading': isReading,
       'isReviewed': isReviewed,
@@ -127,6 +130,7 @@ class BookModel {
       review: review ?? this.review,
       oneLineComment: oneLineComment ?? this.oneLineComment,
       starRating: starRating ?? this.starRating,
+      readEndDate: readEndDate ?? this.readEndDate,
       isWishing: isWishing ?? this.isWishing,
       isReading: isReading ?? this.isReading,
       isReviewed: isReviewed ?? this.isReviewed,
