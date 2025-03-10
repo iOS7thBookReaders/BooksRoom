@@ -222,7 +222,10 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Book Detail'),
+        title: Text(
+          '책 상세정보',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
@@ -274,11 +277,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                               SizedBox(height: 10),
                               infoRow('저자', author),
                               SizedBox(height: 2),
+                              infoRow('출판사', publisher),
+                              SizedBox(height: 2),
                               infoRow('카테고리', formattedCategories),
                               SizedBox(height: 2),
-                              infoRow('쪽수', itemPage.toString()),
-                              SizedBox(height: 2),
-                              infoRow('출판사', publisher),
+                              infoRow('페이지', itemPage.toString()),
                             ],
                           ),
                         ),
@@ -305,6 +308,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                                 child: Icon(Icons.error, color: MAIN_COLOR),
                               ),
                         ),
+                        SizedBox(width: 10),
                       ],
                     ),
 
@@ -344,7 +348,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icon(
                           Icons.check_circle_outline_outlined,
                           size: 30,
-                          color: isWishing ? POINT_COLOR : GRAY900,
+                          color: isWishing ? POINT_COLOR : GRAY300_DISABLE,
                         ),
                         onPressed:
                             _isSaving
@@ -366,7 +370,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         '찜',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isWishing ? POINT_COLOR : GRAY900,
+                          color: isWishing ? POINT_COLOR : GRAY500,
                         ),
                       ),
                     ],
@@ -382,7 +386,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icon(
                           CupertinoIcons.book_fill,
                           size: 30,
-                          color: isReading ? POINT_COLOR : GRAY900,
+                          color: isReading ? POINT_COLOR : GRAY300_DISABLE,
                         ),
                         onPressed:
                             _isSaving
@@ -408,7 +412,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         '읽는중',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isReading ? POINT_COLOR : GRAY900,
+                          color: isReading ? POINT_COLOR : GRAY500,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -425,7 +429,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         icon: Icon(
                           Icons.edit_note_rounded,
                           size: 30,
-                          color: isReviewed ? POINT_COLOR : GRAY900,
+                          color: isReviewed ? POINT_COLOR : GRAY300_DISABLE,
                         ),
                         onPressed:
                             _isSaving
@@ -451,7 +455,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         '독후감',
                         style: TextStyle(
                           fontSize: 13,
-                          color: isReviewed ? POINT_COLOR : GRAY900,
+                          color: isReviewed ? POINT_COLOR : GRAY500,
                         ),
                       ),
                     ],
@@ -471,13 +475,17 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(
-          width: 50,
+          width: 60,
           child: Text(
             label,
-            style: const TextStyle(fontSize: 14, color: GRAY900),
+            style: const TextStyle(
+              fontSize: 14,
+              color: GRAY900,
+              fontWeight: FontWeight.w500,
+            ),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: 10),
         Expanded(
           child: Text(
             content,
