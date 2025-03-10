@@ -11,6 +11,7 @@ import 'package:books_room/components/color.dart';
 import '../components/format.dart';
 import '../models/book_model.dart';
 import '../services/review_firebase_service.dart';
+import '../services/cached_api_service.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -163,8 +164,21 @@ class _MypageScreenState extends State<MypageScreen> {
                 ],
               ),
             ),
-            // 로그아웃 버튼
             Spacer(),
+
+            // 캐시 삭제 버튼
+            TextButton(
+              onPressed: () async {
+                await CachedBestsellerService().clearCache();
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text('캐시가 삭제되었습니다.')));
+              },
+              child: const Text('캐시 삭제', style: TextStyle(color: GRAY500)),
+            ),
+            SizedBox(height: 20),
+
+            // 로그아웃 버튼
             TextButton(
               onPressed: () async {
                 // 먼저 context를 안전하게 저장

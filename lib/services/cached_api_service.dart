@@ -126,4 +126,12 @@ class CachedBestsellerService {
       subInfo: subInfo,
     );
   }
+
+  // -----------------------------------------------------------
+  // 테스트용: 캐시 삭제
+  Future<void> clearCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_cachedBestsellerKey);
+    await prefs.remove(_cachedDateKey);
+  }
 }
