@@ -129,8 +129,7 @@ class CachedBestsellerService {
     );
   }
 
-  // -----------------------------------------------------------
-  // 테스트용: 캐시 삭제
+  // 캐시 삭제
   Future<void> clearCache() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_cachedBestsellerKey);
@@ -258,10 +257,168 @@ class CachedBookDetailService {
     );
   }
 
-  // 테스트용: 특정 책의 캐시 삭제
-  Future<void> clearBookDetailCache(String stringISBN) async {
+  // 모든 상세정보 캐시 삭제
+  Future<void> clearAllBookDetailCache() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.remove(_getCacheKey(stringISBN));
-    print("책 상세 정보 캐시가 삭제되었습니다: $stringISBN");
+    final allKeys = prefs.getKeys();
+
+    int count = 0;
+    for (String key in allKeys) {
+      if (key.startsWith('cached_book_detail_')) {
+        await prefs.remove(key);
+        count++;
+      }
+    }
+
+    print("총 $count개의 책 상세 정보 캐시가 삭제되었습니다.");
+  }
+}
+
+// 검색 결과 캐시
+class CachedSearchService {
+  static const String _cachedSearchIdsKey = 'cached_search_ids';
+
+  // 검색 쿼리, 유형, 정렬 방식을 조합하여 고유한 캐시 키 생성
+  String _getCacheKey(String query, String? queryType, String? sort) {
+    return 'cached_search_${query}_${queryType ?? "Keyword"}_${sort ?? "Accuracy"}';
+  }
+
+  // 검색 결과 캐싱
+  Future<void> cacheSearchResult(
+    String query,
+    String? queryType,
+    String? sort,
+    BookResponse bookResponse,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // 데이터를 JSON 문자열로 변환
+    final Map<String, dynamic> dataToCache = {
+      'title': bookResponse.title,
+      'pubDate': bookResponse.pubDate,
+      'totalResults': bookResponse.totalResults,
+      'startIndex': bookResponse.startIndex,
+      'itemsPerPage': bookResponse.itemsPerPage,
+      'query': bookResponse.query,
+      'items':
+          bookResponse.items?.map((item) => _bookItemToJson(item)).toList(),
+    };
+
+    final cacheKey = _getCacheKey(query, queryType, sort);
+
+    // 데이터 저장
+    await prefs.setString(cacheKey, jsonEncode(dataToCache));
+
+    // 캐시된 검색 목록에 추가
+    List<String> cachedIds = prefs.getStringList(_cachedSearchIdsKey) ?? [];
+    if (!cachedIds.contains(cacheKey)) {
+      cachedIds.add(cacheKey);
+      await prefs.setStringList(_cachedSearchIdsKey, cachedIds);
+    }
+
+    print("검색 결과를 캐시에 저장했습니다: $query ($queryType, $sort)");
+  }
+
+  // 캐시된 검색 결과 로딩
+  Future<BookResponse?> loadCachedSearchResult(
+    String query,
+    String? queryType,
+    String? sort,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    final cacheKey = _getCacheKey(query, queryType, sort);
+    final cachedData = prefs.getString(cacheKey);
+
+    if (cachedData == null) {
+      print("캐시된 검색 결과가 없습니다: $query ($queryType, $sort)");
+      return null;
+    }
+
+    try {
+      print("캐시된 검색 결과를 로드합니다: $query ($queryType, $sort)");
+      final Map<String, dynamic> jsonData = jsonDecode(cachedData);
+      final List<dynamic>? itemsJson = jsonData['items'];
+
+      List<BookItem>? items;
+      if (itemsJson != null) {
+        items = itemsJson.map((itemJson) => _jsonToBookItem(itemJson)).toList();
+      }
+
+      return BookResponse(
+        title: jsonData['title'] ?? '',
+        pubDate: jsonData['pubDate'] ?? '',
+        totalResults: jsonData['totalResults'] ?? 0,
+        startIndex: jsonData['startIndex'] ?? 0,
+        itemsPerPage: jsonData['itemsPerPage'] ?? 0,
+        query: jsonData['query'],
+        items: items,
+      );
+    } catch (e) {
+      print('캐시 데이터 로딩 오류: $e');
+      return null;
+    }
+  }
+
+  // 모든 검색 결과 캐시 삭제
+  Future<void> clearAllSearchCache() async {
+    final prefs = await SharedPreferences.getInstance();
+    List<String> cachedIds = prefs.getStringList(_cachedSearchIdsKey) ?? [];
+
+    int count = 0;
+    for (String cacheKey in cachedIds) {
+      await prefs.remove(cacheKey);
+      count++;
+    }
+
+    await prefs.remove(_cachedSearchIdsKey);
+    print("총 $count개의 검색 결과 캐시가 삭제되었습니다.");
+  }
+
+  // BookItem을 JSON으로 변환
+  Map<String, dynamic> _bookItemToJson(BookItem item) {
+    return {
+      'title': item.title,
+      'author': item.author,
+      'pubDate': item.pubDate,
+      'description': item.description,
+      'isbn13': item.isbn13,
+      'mallType': item.mallType,
+      'cover': item.cover,
+      'publisher': item.publisher,
+      'bestDuration': item.bestDuration,
+      'categoryName': item.categoryName,
+      'subInfo':
+          item.subInfo != null
+              ? {
+                'subTitle': item.subInfo!.subTitle,
+                'itemPage': item.subInfo!.itemPage,
+              }
+              : null,
+    };
+  }
+
+  // JSON을 BookItem으로 변환
+  BookItem _jsonToBookItem(Map<String, dynamic> json) {
+    BookSubInfo? subInfo;
+    if (json['subInfo'] != null) {
+      subInfo = BookSubInfo(
+        subTitle: json['subInfo']['subTitle'],
+        itemPage: json['subInfo']['itemPage'],
+      );
+    }
+
+    return BookItem(
+      title: json['title'],
+      author: json['author'],
+      pubDate: json['pubDate'],
+      description: json['description'],
+      isbn13: json['isbn13'],
+      mallType: json['mallType'],
+      cover: json['cover'],
+      publisher: json['publisher'],
+      bestDuration: json['bestDuration'],
+      categoryName: json['categoryName'],
+      subInfo: subInfo,
+    );
   }
 }

@@ -15,6 +15,7 @@ class BookProvider with ChangeNotifier {
       CachedBestsellerService();
   final CachedBookDetailService _cachedBookDetailService =
       CachedBookDetailService();
+  final CachedSearchService _cachedSearchService = CachedSearchService();
 
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
@@ -172,7 +173,26 @@ class BookProvider with ChangeNotifier {
   ) async {
     _isLoading = true;
     notifyListeners();
+
     try {
+      // 1. 먼저 캐시된 데이터가 있는지 확인
+      final cachedData = await _cachedSearchService.loadCachedSearchResult(
+        query,
+        queryType,
+        sort,
+      );
+
+      if (cachedData != null) {
+        // 2. 캐시된 데이터가 있으면 사용
+        print("캐시된 검색 결과를 사용합니다: $query ($queryType, $sort)");
+        _bookSearchData = cachedData;
+        totalCount = cachedData.totalResults;
+        _isLoading = false;
+        notifyListeners();
+        return _bookSearchData;
+      }
+
+      // 3. 캐시된 데이터가 없으면 API 호출
       final response = await _apiService.fetchSearchResult(
         BookRequestModel(
           ttbKey: API_KEY,
@@ -186,6 +206,7 @@ class BookProvider with ChangeNotifier {
           searchTarget: 'Book',
         ),
       );
+
       if (response.items != null && response.items!.isNotEmpty) {
         _bookSearchData = response;
       } else {
@@ -193,11 +214,37 @@ class BookProvider with ChangeNotifier {
       }
       totalCount = response.totalResults;
 
+      // 4. 받아온 데이터를 캐시에 저장
+      if (_bookSearchData != null &&
+          _bookSearchData!.items != null &&
+          _bookSearchData!.items!.isNotEmpty) {
+        await _cachedSearchService.cacheSearchResult(
+          query,
+          queryType,
+          sort,
+          _bookSearchData!,
+        );
+        print("검색 결과를 캐시에 저장했습니다: $query ($queryType, $sort)");
+      }
+
       _isLoading = false;
       notifyListeners();
       return _bookSearchData;
     } catch (e) {
       print("Error fetching search results: $e");
+
+      // 5. API 호출 실패 시 다시 한번 캐시 확인
+      final cachedData = await _cachedSearchService.loadCachedSearchResult(
+        query,
+        queryType,
+        sort,
+      );
+      if (cachedData != null) {
+        print("API 호출 실패. 캐시된 검색 결과를 사용합니다: $query ($queryType, $sort)");
+        _bookSearchData = cachedData;
+        totalCount = cachedData.totalResults;
+      }
+
       _isLoading = false;
       notifyListeners();
       return null;

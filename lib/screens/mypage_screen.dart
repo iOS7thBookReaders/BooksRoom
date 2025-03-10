@@ -169,6 +169,7 @@ class _MypageScreenState extends State<MypageScreen> {
             TextButton(
               onPressed: () async {
                 await CachedBestsellerService().clearCache();
+                await CachedBookDetailService().clearAllBookDetailCache();
                 if (context.mounted) {
                   ScaffoldMessenger.of(
                     context,
