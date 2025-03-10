@@ -22,6 +22,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   late TabController tabController;
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _paginationScrollController = ScrollController();
+
   bool _isFloatingButtonExpanded = true;
 
   // ReviewFirebaseService 인스턴스
@@ -34,17 +36,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   // 데이터 로딩 상태 관리
   bool _isReadingBooksLoading = true;
   bool _isWishingBooksLoading = true;
+  bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_onScroll);
-
+    _paginationScrollController.addListener(_onScrollPage);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
-      bookProvider.fetchBookBestseller(bookProvider.currentPage);
-
+      if (bookProvider.booksBestsellerData == null) {
+        bookProvider.fetchBookBestseller(1);
+        isLoading = false;
+      }
       // 읽고 있는 책 데이터 구독
       _loadReadingBooks();
       // 찜한 책 데이터 구독
@@ -68,24 +73,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
         });
       }
     }
+  }
 
-    // if (_scrollController.position.pixels ==
-    //         _scrollController.position.maxScrollExtent &&
-    //     !_isLoadingNextPage &&
-    //     hasMoreData) {
-    //   // 끝에 도달하면, 다음 페이지 로드
-    //   setState(() {
-    //     _isLoadingNextPage = true;
-    //   });
-    //   final bookProvider = Provider.of<BookProvider>(context, listen: false);
-    //   // 페이지 증가
-    //   currentPage++;
-    //   bookProvider.fetchBookBestseller(currentPage, 20).then((_) {
-    //     setState(() {
-    //       _isLoadingNextPage = false;
-    //     });
-    //   });
-    // }
+  void _onScrollPage() {
+    final bookProvider = Provider.of<BookProvider>(context, listen: false);
+
+    if (_paginationScrollController.position.pixels ==
+        _paginationScrollController.position.maxScrollExtent) {
+      print('페이지 끝');
+      print('💗Loading in scrollPage func $isLoading');
+      if (!bookProvider.isLoading && bookProvider.hasMore) {
+        bookProvider.fetchBookBestseller(bookProvider.currentPage);
+        print('💗Loading in scrollPage fetchBookBestseller func $isLoading');
+      }
+    }
   }
 
   // 읽고 있는 책 로드 메서드
@@ -112,6 +113,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   void dispose() {
     tabController.dispose();
     _scrollController.dispose();
+    _paginationScrollController.dispose();
     super.dispose();
   }
 
@@ -158,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
                 )
                 : booksBestsellerData == null
                 ? Center(child: Text('데이터가 없습니다.'))
-                : buildBestSellerListView(booksBestsellerData),
+                : buildBestSellerListView(booksBestsellerData, bookProvider),
             buildReadingListView(),
             buildWishingListView(),
           ],
@@ -208,20 +210,26 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     );
   }
 
-  Widget buildBestSellerListView(BookResponse bookData) {
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SizedBox(height: 20),
-          if (bookData.items != null)
-            Column(
-              children:
-                  bookData.items!.map((bookItem) {
-                    return BookListCell(bookItem: bookItem);
-                  }).toList(),
-            ),
-        ],
-      ),
+  Widget buildBestSellerListView(BookResponse bookData, BookProvider provider) {
+    return ListView.builder(
+      controller: _paginationScrollController,
+      itemCount: bookData.items?.length ?? 0,
+      itemBuilder: (context, index) {
+        if (index == bookData.items!.length - 1) {
+          // 마지막 항목일 경우 로딩 인디케이터 추가
+          return Column(
+            children: [
+              BookListCell(bookItem: bookData.items![index]),
+              if (isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(color: MAIN_COLOR),
+                ),
+            ],
+          );
+        }
+        return BookListCell(bookItem: bookData.items![index]);
+      },
     );
   }
 

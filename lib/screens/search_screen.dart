@@ -13,7 +13,6 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
-  final ScrollController _scrollController = ScrollController();
   TextEditingController searchController = TextEditingController();
   String _currentQueryType = '키워드';
   final List<String> _queryTypeOptions = ['키워드', '제목', '저자', '출판사'];
@@ -23,48 +22,6 @@ class _SearchScreenState extends State<SearchScreen> {
   String queryType = 'Keyword';
   String sort = 'Accuracy';
   bool isLoading = false;
-  int currentPage = 1;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _scrollController.addListener(_onScroll);
-  }
-
-  void _onScroll() {
-    print("💚[pagination] _onScroll");
-
-    if (_scrollController.position.pixels ==
-        _scrollController.position.maxScrollExtent) {
-      // 마지막 페이지까지 도달하면 다음 페이지 데이터 요청
-      print("💚[pagination] _onScroll if");
-
-      _loadNextPage();
-    }
-  }
-
-  void _loadNextPage() {
-    print("💚[pagination] loadNextPage");
-    final bookProvider = Provider.of<BookProvider>(context, listen: false);
-    if (!bookProvider.isLoading) {
-      setState(() {
-        isLoading = true;
-      });
-      String query = searchController.text.trim();
-      if (query.isEmpty) {
-        print('검색어를 입력해주세요.');
-        return;
-      }
-      print("💚[pagination] fetch");
-      bookProvider.fetchSearchResult(
-        query,
-        queryType,
-        sort,
-        bookProvider.currentPage,
-      );
-    }
-  }
 
   @override
   void dispose() {
@@ -230,8 +187,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   Provider.of<BookProvider>(
                     context,
                     listen: false,
-                  ).fetchSearchResult(query, queryType, sort, currentPage);
-                  currentPage++;
+                  ).fetchSearchResult(query, queryType, sort);
                 },
               ),
             ),
@@ -289,7 +245,6 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildSearchResult(BookProvider bookProvider) {
     return Expanded(
       child: ListView.builder(
-        controller: _scrollController,
         itemCount: bookProvider.bookSearchData!.items!.length,
         itemBuilder: (context, index) {
           return BookListCell(

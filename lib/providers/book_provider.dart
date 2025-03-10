@@ -2,6 +2,8 @@
 
 import 'package:books_room/services/api_service.dart';
 import 'package:books_room/key.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:books_room/models/book_request.dart';
 import 'package:books_room/models/book_response.dart';
@@ -11,17 +13,15 @@ class BookProvider with ChangeNotifier {
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
   BookResponse? _bookSearchData;
+  int currentPage = 0;
   int totalCount = 0;
   bool _isLoading = true;
-  bool hasMoreData = true;
-  int currentPage = 1;
-  final int pageSize = 20;
-
+  bool hasMore = true;
   BookResponse? get bookDetailData => _bookDetailData;
   BookResponse? get booksBestsellerData => _booksBestsellerData;
   BookResponse? get bookSearchData => _bookSearchData;
+
   bool get isLoading => _isLoading;
-  bool get hasMore => hasMoreData;
 
   void resetSearchData() {
     _bookSearchData = null;
@@ -33,15 +33,7 @@ class BookProvider with ChangeNotifier {
     notifyListeners(); // 상태 변경을 알리기 위해 호출
   }
 
-  void resetPagination() {
-    currentPage = 1;
-    _booksBestsellerData = null;
-    hasMoreData = true;
-  }
-
   Future<void> fetchBookBestseller(int page) async {
-    // 로딩중 && 데이터 더 없음
-    if (_isLoading || !hasMoreData) return;
     _isLoading = true;
     notifyListeners();
     try {
@@ -50,20 +42,30 @@ class BookProvider with ChangeNotifier {
           ttbKey: API_KEY,
           queryType: 'Bestseller',
           maxResults: 20,
-          start: 1,
+          start: page,
           searchTarget: 'Book',
           output: 'JS',
           version: '20131101',
         ),
       );
-
+      // 응답에 아이템 없고 비어있으면 더 불러올 데이터가 없다는 거고
       if (response.items == null || response.items!.isEmpty) {
-        hasMoreData = false;
+        hasMore = false;
       } else {
-        _booksBestsellerData = response;
+        // 응답에 아이템이 있으면 데이터가 더 있다는거
+        hasMore = true;
+        if (_booksBestsellerData == null) {
+          // 처음 fetch하는거면 당연히 베스트셀러 데이터가 비어있겠지
+          // 응답값을 넣어
+          _booksBestsellerData = response;
+        } else {
+          // 처음 fetch가 아니면 이미 items에 데이터가 있겠지 response.items 배열에 추가
+          _booksBestsellerData?.items!.addAll(response.items!);
+        }
+        // 추가되어서 데이터가 20 40 60 ... 이렇게 늘어나겠지
+        print(_booksBestsellerData?.items!.length);
         _isLoading = false;
-        currentPage = page;
-        totalCount = response.totalResults;
+        currentPage++;
       }
       notifyListeners();
     } catch (e) {
@@ -102,9 +104,7 @@ class BookProvider with ChangeNotifier {
     String query,
     String? queryType,
     String? sort,
-    int page,
   ) async {
-    if (_isLoading || !hasMoreData) return null;
     _isLoading = true;
     notifyListeners();
     try {
@@ -117,28 +117,25 @@ class BookProvider with ChangeNotifier {
           queryType: queryType,
           sort: sort,
           maxResults: 20,
-          start: page,
+          start: 1,
           searchTarget: 'Book',
         ),
       );
       if (response.items != null && response.items!.isNotEmpty) {
         _bookSearchData = response;
       } else {
-        _bookSearchData!.items!.addAll(response.items!);
+        _bookSearchData = null;
       }
       totalCount = response.totalResults;
-      currentPage++;
-      if (_bookSearchData!.items!.length >= _bookSearchData!.totalResults) {
-        hasMoreData = false; // 더 이상 데이터가 없으면 hasMoreData를 false로 설정
-      }
 
       _isLoading = false;
-      notifyListeners(); // 상태 업데이트
+      notifyListeners();
+      return _bookSearchData;
     } catch (e) {
-      print('Error fetching search result: $e');
+      print("Error fetching search results: $e");
       _isLoading = false;
       notifyListeners();
+      return null;
     }
-    return null;
   }
 }
