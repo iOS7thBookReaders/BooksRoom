@@ -17,6 +17,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
   List<BookModel> bookList = [];
   bool _isBooksLoading = true;
 
+  // 리뷰가 있는 날짜를 저장할 맵 추가
+  Map<DateTime, List<BookModel>> _eventsMap = {};
+
   DateTime selectedDay = DateTime(
     DateTime.now().year,
     DateTime.now().month,
@@ -28,8 +31,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void initState() {
     super.initState();
     _loadCalendarData();
+    _loadAllReviews(); // 모든 리뷰 날짜 로드
   }
 
+  // 선택된 날짜에 맞는 책 로드
   void _loadCalendarData() {
     _reviewFirebaseService.getBooksMatchWithCalendar(selectedDay).listen((
       books,
@@ -37,6 +42,33 @@ class _CalendarScreenState extends State<CalendarScreen> {
       setState(() {
         bookList = books;
         _isBooksLoading = false;
+      });
+    });
+  }
+
+  // 모든 리뷰 데이터 로드하여 이벤트 맵 생성
+  void _loadAllReviews() {
+    _reviewFirebaseService.getReviewBooks().listen((books) {
+      Map<DateTime, List<BookModel>> eventsMap = {};
+
+      for (var book in books) {
+        if (book.readEndDate != null) {
+          try {
+            final date = DateTime.parse(book.readEndDate!);
+            // 날짜가 이미 맵에 있는지 확인
+            if (eventsMap[date] != null) {
+              eventsMap[date]!.add(book);
+            } else {
+              eventsMap[date] = [book];
+            }
+          } catch (e) {
+            print('날짜 파싱 오류: ${book.readEndDate} - $e');
+          }
+        }
+      }
+
+      setState(() {
+        _eventsMap = eventsMap;
       });
     });
   }
@@ -108,10 +140,16 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   markersOffset: const PositionedOffset(),
                   // marker 모양
                   markerDecoration: const BoxDecoration(
-                    color: Colors.black,
+                    color: MAIN_COLOR,
                     shape: BoxShape.circle,
                   ),
                 ),
+                // 이벤트 마커 표시를 위한 설정
+                eventLoader: (day) {
+                  // 각 날짜에 해당하는 이벤트(리뷰 목록) 반환
+                  final normalizedDay = DateTime(day.year, day.month, day.day);
+                  return _eventsMap[normalizedDay] ?? [];
+                },
                 // 날짜 선택시 변경
                 onDaySelected: (DateTime selectedDay, DateTime focusedDay) {
                   setState(() {
