@@ -24,6 +24,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   final ScrollController _scrollController = ScrollController();
   bool _isFloatingButtonExpanded = true;
 
+  // 현재 스크롤 위치가 타이틀을 가리는지 여부
+  bool _isTitleHidden = false;
+
   // ReviewFirebaseService 인스턴스
   final ReviewFirebaseService _reviewFirebaseService = ReviewFirebaseService();
 
@@ -41,6 +44,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     tabController = TabController(length: 3, vsync: this);
     _scrollController.addListener(_onScroll);
 
+    // 탭 변경 이벤트 리스너
+    tabController.addListener(_handleTabChange);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final bookProvider = Provider.of<BookProvider>(context, listen: false);
       bookProvider.fetchBookBestseller();
@@ -52,7 +58,43 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     });
   }
 
+  // 탭 변경 시 스크롤 위치 유지하기
+  void _handleTabChange() {
+    if (tabController.indexIsChanging) {
+      // 현재 탭이 변경되는 중입니다
+      // 타이틀이 이미 가려져 있으면 새 탭도 같은 상태로 설정
+      if (_isTitleHidden) {
+        // 타이틀이 가려져 있는 스크롤 위치를 설정
+        // SliverAppBar의 높이만큼 스크롤
+        // 정확한 값은 앱바의 실제 높이에 맞게 조정 필요
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          // 앱바가 접힌 상태가 되도록 스크롤 포지션 설정
+          // 이 값은 앱바의 높이와 전체 설정에 따라 조정 필요
+          _scrollController.jumpTo(60.0); // 예시 값, 실제 앱바 높이에 맞게 조정
+        });
+      } else {
+        // 타이틀이 보이는 상태이면 스크롤 위치를 맨 위로 설정
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _scrollController.jumpTo(0);
+        });
+      }
+    }
+  }
+
   void _onScroll() {
+    // 현재 스크롤 위치에 따라 타이틀 표시 상태 감지
+    if (_scrollController.hasClients) {
+      // 스크롤 위치가 특정 값보다 크면 타이틀이 가려진 것으로 판단
+      // 이 값은 앱바의 높이와 동작에 따라 적절히 조정 필요
+      bool isTitleHiddenNow = _scrollController.offset > 50.0; // 예시 값
+
+      if (isTitleHiddenNow != _isTitleHidden) {
+        setState(() {
+          _isTitleHidden = isTitleHiddenNow;
+        });
+      }
+    }
+
     if (_scrollController.position.userScrollDirection ==
         ScrollDirection.reverse) {
       if (_isFloatingButtonExpanded) {
