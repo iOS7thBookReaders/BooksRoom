@@ -3,6 +3,7 @@
 import 'package:books_room/screens/book_detail_screen.dart';
 import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:books_room/models/book_response.dart';
 import 'format.dart';
@@ -38,6 +39,14 @@ class _BookListCellState extends State<BookListCell> {
   }
 
   @override
+  void dispose() {
+    // 이미지 관련 리소스 명시적 해제
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Format format = Format();
 
@@ -66,26 +75,37 @@ class _BookListCellState extends State<BookListCell> {
             },
             child: Row(
               children: [
-                FutureBuilder<Image>(
-                  future: _imageFuture,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return CircularProgressIndicator();
-                    } else if (snapshot.hasError) {
-                      return Icon(Icons.error, color: MAIN_COLOR);
-                    } else if (snapshot.hasData) {
-                      return Image.network(
-                        cover,
+                CachedNetworkImage(
+                  imageUrl: cover,
+                  width: 80,
+                  height: 100,
+                  fit: BoxFit.fitHeight,
+                  fadeInDuration: Duration.zero,
+                  placeholderFadeInDuration: Duration.zero,
+                  placeholder:
+                      (context, url) => Container(
                         width: 80,
                         height: 100,
-                        fit: BoxFit.fitHeight,
-                      );
-                    } else {
-                      return Icon(Icons.error, color: MAIN_COLOR);
-                    }
-                  },
+                        color: MAIN_COLOR.withAlpha(0),
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2.0,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              MAIN_COLOR.withAlpha(0),
+                            ),
+                          ),
+                        ),
+                      ),
+                  errorWidget:
+                      (context, url, error) => Container(
+                        width: 80,
+                        height: 100,
+                        color: Colors.grey[300],
+                        child: Icon(Icons.error, color: MAIN_COLOR),
+                      ),
                 ),
                 SizedBox(width: 10),
+
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

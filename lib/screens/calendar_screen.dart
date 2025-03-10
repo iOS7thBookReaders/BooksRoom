@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_print
 
 import 'package:books_room/components/color.dart';
+import 'package:books_room/screens/review_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:table_calendar/table_calendar.dart';
 
@@ -186,51 +187,69 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   Widget _buildReviewCell(BookModel item) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        // 리뷰 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ReviewScreen(
+                  bookModel: item,
+                  firebaseService: _reviewFirebaseService,
                 ),
-              ),
-              Text(
-                item.author,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                '${item.oneLineComment}',
-                style: const TextStyle(fontSize: 14),
-              ),
-              Spacer(),
-              Row(
-                children: [
-                  for (int i = 0; i < 5; i++)
-                    if (i < item.starRating!)
-                      const Icon(Icons.star, color: MAIN_COLOR, size: 20)
-                    else
-                      const Icon(
-                        Icons.star_outline_outlined,
-                        color: GRAY300_DISABLE,
-                        size: 20,
-                      ),
-                ],
-              ),
-            ],
-          ),
-        ],
+        ).then((_) {
+          // 리뷰 화면에서 돌아왔을 때 데이터 다시 로드
+          _loadCalendarData();
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  item.author,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  '${item.oneLineComment}',
+                  style: const TextStyle(fontSize: 14),
+                ),
+                Spacer(),
+                Row(
+                  children: [
+                    for (int i = 0; i < 5; i++)
+                      if (i < item.starRating!)
+                        const Icon(Icons.star, color: MAIN_COLOR, size: 20)
+                      else
+                        const Icon(
+                          Icons.star_outline_outlined,
+                          color: GRAY300_DISABLE,
+                          size: 20,
+                        ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

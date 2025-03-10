@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:books_room/components/color.dart';
 import 'package:books_room/models/book_model.dart';
@@ -92,6 +93,9 @@ class _ReviewScreenState extends State<ReviewScreen> {
     // 컨트롤러 해제
     reviewController.dispose();
     oneLineCommentController.dispose();
+    // 이미지 관련 리소스 명시적 해제
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
     super.dispose();
   }
 
@@ -295,22 +299,33 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         margin: const EdgeInsets.only(right: 16.0),
                         child:
                             coverUrl.isNotEmpty
-                                ? Image.network(
-                                  coverUrl,
+                                ? CachedNetworkImage(
+                                  imageUrl: coverUrl,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    // 이미지 로드 실패시 대체 UI
-                                    return Container(
-                                      color: Colors.grey.shade300,
-                                      child: Center(
-                                        child: Icon(
-                                          Icons.book,
-                                          size: 50,
-                                          color: Colors.grey.shade700,
+                                  fadeInDuration: Duration.zero,
+                                  placeholderFadeInDuration: Duration.zero,
+                                  width: 120,
+                                  height: 180,
+                                  placeholder:
+                                      (context, url) => Container(
+                                        color: MAIN_COLOR.withAlpha(0),
+                                        child: Center(
+                                          child: CircularProgressIndicator(
+                                            color: MAIN_COLOR.withAlpha(0),
+                                          ),
                                         ),
                                       ),
-                                    );
-                                  },
+                                  errorWidget:
+                                      (context, url, error) => Container(
+                                        color: Colors.grey.shade300,
+                                        child: Center(
+                                          child: Icon(
+                                            Icons.book,
+                                            size: 50,
+                                            color: Colors.grey.shade700,
+                                          ),
+                                        ),
+                                      ),
                                 )
                                 : Container(
                                   color: Colors.grey.shade300,

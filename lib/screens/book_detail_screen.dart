@@ -2,6 +2,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 import 'package:books_room/providers/book_provider.dart';
 import 'package:books_room/components/format.dart';
@@ -49,6 +50,14 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         });
       }
     });
+  }
+
+  @override
+  void dispose() {
+    // 이미지 관련 리소스 명시적 해제
+    PaintingBinding.instance.imageCache.clear();
+    PaintingBinding.instance.imageCache.clearLiveImages();
+    super.dispose();
   }
 
   // 책이 Firebase에 있는지 확인하고 없으면 저장
@@ -273,7 +282,29 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                             ],
                           ),
                         ),
-                        Expanded(flex: 4, child: Image.network(cover)),
+                        CachedNetworkImage(
+                          imageUrl: cover,
+                          fit: BoxFit.contain,
+                          fadeInDuration: Duration.zero,
+                          placeholderFadeInDuration: Duration.zero,
+                          placeholder:
+                              (context, url) => Container(
+                                color: MAIN_COLOR.withAlpha(0),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2.0,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      MAIN_COLOR.withAlpha(0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                          errorWidget:
+                              (context, url, error) => Container(
+                                color: Colors.grey[300],
+                                child: Icon(Icons.error, color: MAIN_COLOR),
+                              ),
+                        ),
                       ],
                     ),
 
