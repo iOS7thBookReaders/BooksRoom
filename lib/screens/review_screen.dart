@@ -582,7 +582,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                   child: const Text(
                     '저장하기',
                     style: TextStyle(
-                      color: Colors.white,
+                      color: GRAY900,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
