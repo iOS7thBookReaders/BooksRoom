@@ -13,6 +13,8 @@ class BookProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final CachedBestsellerService _cachedBestsellerService =
       CachedBestsellerService();
+  final CachedBookDetailService _cachedBookDetailService =
+      CachedBookDetailService();
 
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
@@ -115,7 +117,23 @@ class BookProvider with ChangeNotifier {
   Future<void> fetchBookDetail(String stringISBN) async {
     _isLoading = true;
     notifyListeners();
+
     try {
+      // 1. 먼저 캐시된 데이터가 있는지 확인
+      final cachedData = await _cachedBookDetailService.loadCachedBookDetail(
+        stringISBN,
+      );
+
+      if (cachedData != null) {
+        // 2. 캐시된 데이터가 있으면 사용
+        print("캐시된 책 상세 정보를 사용합니다: $stringISBN");
+        _bookDetailData = cachedData;
+        _isLoading = false;
+        notifyListeners();
+        return;
+      }
+
+      // 3. 캐시된 데이터가 없으면 API 호출
       final response = await _apiService.fetchBookDetail(
         BookRequestModel(
           ttbKey: API_KEY,
@@ -128,6 +146,16 @@ class BookProvider with ChangeNotifier {
       );
 
       _bookDetailData = response;
+
+      // 4. 받아온 데이터를 캐시에 저장
+      if (_bookDetailData != null &&
+          _bookDetailData!.items != null &&
+          _bookDetailData!.items!.isNotEmpty) {
+        await _cachedBookDetailService.cacheBookDetail(
+          stringISBN,
+          _bookDetailData!,
+        );
+      }
       _isLoading = false;
       notifyListeners();
     } catch (e) {
