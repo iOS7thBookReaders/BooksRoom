@@ -110,7 +110,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
         return Theme(
           data: Theme.of(
             context,
-          ).copyWith(colorScheme: ColorScheme.light(primary: MAIN_COLOR)),
+          ).copyWith(colorScheme: ColorScheme.light(primary: POINT_COLOR)),
           child: child!,
         );
       },
@@ -186,6 +186,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           widget.bookModel.isReviewed
               ? (_isEditMode ? '도서 리뷰 수정' : '도서 리뷰')
               : '도서 리뷰 작성',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
         ),
         backgroundColor: Colors.white,
 
@@ -211,7 +212,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           // 수정 모드일 때만 삭제 버튼 표시
           if (widget.bookModel.isReviewed && _isEditMode)
             IconButton(
-              icon: const Icon(Icons.delete),
+              icon: const Icon(Icons.delete_outline_outlined, color: GRAY900),
               onPressed: () {
                 setState(() {
                   // 삭제 확인 다이얼로그 표시
@@ -225,7 +226,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             TextButton(
                               onPressed:
                                   () => Navigator.pop(context), // 다이얼로그 닫기
-                              child: Text('취소'),
+                              child: Text(
+                                '취소',
+                                style: TextStyle(color: Colors.blue),
+                              ),
                             ),
                             TextButton(
                               onPressed: () async {
@@ -268,7 +272,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   }
                                 }
                               },
-                              child: Text('삭제'),
+                              child: Text(
+                                '삭제',
+                                style: TextStyle(color: Colors.red),
+                              ),
                             ),
                           ],
                         ),
@@ -283,7 +290,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
           // 스크롤 가능 영역
           Expanded(
             child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(20.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -359,29 +366,30 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       ),
                     ],
                   ), // 책 정보 섹션
-                  const SizedBox(height: 10),
-
+                  const SizedBox(height: 20),
                   // 책 제목 및 소개 섹션
                   Text(
                     booktitle,
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  SizedBox(height: 10),
+                  SizedBox(height: 5),
                   Text(
                     bookIntro,
                     style: const TextStyle(
                       fontWeight: FontWeight.normal,
-                      fontSize: 12.0,
+                      fontSize: 13.0,
                     ),
                   ),
                   const SizedBox(height: 20.0),
-
                   // 읽은 날짜 선택 섹션
                   const Text(
                     '다 읽은 날짜',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: TextStyle(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 16.0,
+                    ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 2.0),
                   // 작성 모드나 수정 모드일 때는 날짜 선택 가능
                   if (!widget.bookModel.isReviewed || _isEditMode)
                     InkWell(
@@ -393,7 +401,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         ),
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey),
-                          borderRadius: BorderRadius.circular(4.0),
+                          borderRadius: BorderRadius.circular(12.0),
                         ),
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -406,10 +414,10 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                 color:
                                     selectedReadEndDate != null
                                         ? Colors.black
-                                        : Colors.grey,
+                                        : GRAY400,
                               ),
                             ),
-                            Icon(Icons.calendar_today, color: GRAY500),
+                            Icon(Icons.calendar_today, color: GRAY900),
                           ],
                         ),
                       ),
@@ -421,7 +429,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
                         color: GRAY50_BACKGROUND,
-                        borderRadius: BorderRadius.circular(4.0),
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Text(
                         selectedReadEndDate != null
@@ -429,55 +437,22 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             : '날짜 정보가 없습니다.',
                       ),
                     ),
-
-                  const SizedBox(height: 10),
-                  InkWell(
-                    onTap: () => _selectDate(context),
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 12.0,
-                        horizontal: 16.0,
-                      ),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4.0),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            selectedReadEndDate != null
-                                ? dateFormat.format(selectedReadEndDate!)
-                                : '날짜를 선택해주세요',
-                            style: TextStyle(
-                              color:
-                                  selectedReadEndDate != null
-                                      ? Colors.black
-                                      : Colors.grey,
-                              fontSize: 13,
-                            ),
-                          ),
-                          Icon(Icons.calendar_today, color: GRAY500),
-                        ],
-                      ),
-                    ),
-                  ),
                   SizedBox(height: 20),
                   // 리뷰 입력 섹션
                   const Text(
                     '리뷰',
                     style: TextStyle(
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w600,
                       fontSize: 16.0,
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 2.0),
                   // 작성 모드나 수정 모드일 때 텍스트필드 표시
                   if (!widget.bookModel.isReviewed || _isEditMode)
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4.0),
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: TextField(
                         controller: reviewController,
@@ -496,7 +471,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       padding: const EdgeInsets.all(12.0),
                       decoration: BoxDecoration(
                         color: GRAY50_BACKGROUND,
-                        borderRadius: BorderRadius.circular(4.0),
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: Text(
                         reviewController.text.isEmpty
@@ -504,25 +479,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                             : reviewController.text,
                       ),
                     ), // 리뷰 입력 섹션
-                  const SizedBox(height: 24.0),
-                  const SizedBox(height: 10.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: GRAY500),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: TextField(
-                      controller: reviewController,
-                      maxLines: 5,
-                      decoration: const InputDecoration(
-                        hintText: '내용을 입력해주세요',
-
-                        hintStyle: TextStyle(color: GRAY500, fontSize: 13),
-                        contentPadding: EdgeInsets.all(12.0),
-                        border: InputBorder.none,
-                      ),
-                    ),
-                  ), // 리뷰 입력 섹션
                   const SizedBox(height: 20.0),
 
                   // 한 줄 평 입력 섹션
@@ -533,13 +489,13 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       fontSize: 16.0,
                     ),
                   ),
-                  const SizedBox(height: 8.0),
+                  const SizedBox(height: 2.0),
                   // 작성 모드나 수정 모드일 때 텍스트필드 표시
                   if (!widget.bookModel.isReviewed || _isEditMode)
                     Container(
                       decoration: BoxDecoration(
                         border: Border.all(color: Colors.grey),
-                        borderRadius: BorderRadius.circular(4.0),
+                        borderRadius: BorderRadius.circular(12.0),
                       ),
                       child: TextField(
                         controller: oneLineCommentController,
@@ -576,35 +532,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         style: TextStyle(color: Colors.grey),
                       ),
                     ), // 한 줄 평 입력 섹션
-                  const SizedBox(height: 8.0),
-
-                  const SizedBox(height: 10.0),
-                  Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(4.0),
-                    ),
-                    child: TextField(
-                      controller: oneLineCommentController,
-                      maxLength: 20,
-                      decoration: const InputDecoration(
-                        hintText: '한줄평을 남겨주세요',
-                        hintStyle: TextStyle(color: GRAY500, fontSize: 13),
-
-                        contentPadding: EdgeInsets.all(12.0),
-                        border: InputBorder.none,
-                        counterText: '',
-                      ),
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      oneLineCommentLength,
-                      style: TextStyle(color: Colors.grey),
-                    ),
-                  ), // 한 줄 평 입력 섹션
-                  const SizedBox(height: 20.0),
+                  SizedBox(height: 5),
                   // 별점 섹션
                   const Text(
                     '별점',
@@ -619,9 +547,7 @@ class _ReviewScreenState extends State<ReviewScreen> {
                         icon: Icon(
                           index < starRating ? Icons.star : Icons.star_border,
                           color:
-                              index < starRating
-                                  ? Colors.amber
-                                  : GRAY300_DISABLE,
+                              index < starRating ? Colors.amber : Colors.grey,
                           size: 32,
                         ),
                         onPressed:
@@ -635,11 +561,11 @@ class _ReviewScreenState extends State<ReviewScreen> {
                       );
                     }),
                   ),
-                  const SizedBox(height: 24.0),
                 ],
               ),
             ),
           ),
+
           // 저장 버튼
           // 작성 모드나 수정 모드일 때만 저장 버튼 표시
           if (!widget.bookModel.isReviewed || _isEditMode)
@@ -663,26 +589,6 @@ class _ReviewScreenState extends State<ReviewScreen> {
                 ),
               ),
             ), // 저장 버튼
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                onPressed: _saveReview,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0),
-                  backgroundColor: MAIN_COLOR,
-                ),
-                child: const Text(
-                  '저장하기',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-          ),
           SizedBox(height: 50),
         ],
       ),
@@ -694,21 +600,15 @@ class _ReviewScreenState extends State<ReviewScreen> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8.0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           SizedBox(
             width: 70,
             child: Text(
               label,
-              style: const TextStyle(fontSize: 14, color: GRAY900),
+              style: const TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 14, color: GRAY900),
-            ),
-          ),
+          Expanded(child: Text(value)),
         ],
       ),
     );
