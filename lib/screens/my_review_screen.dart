@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 
 import '../models/book_model.dart';
 import '../services/review_firebase_service.dart';
+import '../screens/review_screen.dart';
 
 class MyReviewScreen extends StatefulWidget {
   final List<BookModel> items;
@@ -136,52 +137,72 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
   }
 
   Widget _buildReviewCell(BookModel item) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                item.title,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+    return GestureDetector(
+      onTap: () {
+        // 리뷰 화면으로 이동
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder:
+                (context) => ReviewScreen(
+                  bookModel: item,
+                  firebaseService: _reviewFirebaseService,
                 ),
-              ),
-              Text(
-                item.author,
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-            ],
           ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Text(
-                '${item.oneLineComment}',
-                style: const TextStyle(fontSize: 14),
-                overflow: TextOverflow.ellipsis,
-              ),
-              Spacer(),
-              Row(
-                children: [
-                  for (int i = 0; i < 5; i++)
-                    if (i < item.starRating!)
-                      const Icon(Icons.star, color: MAIN_COLOR, size: 20)
-                    else
-                      const Icon(
-                        Icons.star_outline_outlined,
-                        color: GRAY300_DISABLE,
-                        size: 20,
-                      ),
-                ],
-              ),
-            ],
-          ),
-        ],
+        ).then((_) {
+          // 리뷰 화면에서 돌아왔을 때 데이터 다시 로드
+          setState(() {
+            _items = List.from(widget.items);
+          });
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.title,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  item.author,
+                  style: const TextStyle(fontSize: 14, color: Colors.grey),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Text(
+                  '${item.oneLineComment}',
+                  style: const TextStyle(fontSize: 14),
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Spacer(),
+                Row(
+                  children: [
+                    for (int i = 0; i < 5; i++)
+                      if (i < item.starRating!)
+                        const Icon(Icons.star, color: MAIN_COLOR, size: 20)
+                      else
+                        const Icon(
+                          Icons.star_outline_outlined,
+                          color: GRAY300_DISABLE,
+                          size: 20,
+                        ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
