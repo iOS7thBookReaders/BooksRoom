@@ -145,18 +145,21 @@ class _ReviewScreenState extends State<ReviewScreen> {
       print('파이어베이스 업데이트 완료');
 
       // 저장 완료 후 알림
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('리뷰가 저장되었습니다')));
-
-      // 이전 화면으로 돌아가기
-      Navigator.pop(context);
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('리뷰가 저장되었습니다')));
+        // 이전 화면으로 돌아가기
+        Navigator.pop(context);
+      }
     } catch (e) {
       print('리뷰 저장 중 오류 발생: $e');
       // 에러 발생 시 처리
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('오류가 발생했습니다: $e')));
+      }
     }
   }
 
@@ -241,20 +244,24 @@ class _ReviewScreenState extends State<ReviewScreen> {
                                   );
 
                                   // 성공 메시지 표시
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('리뷰가 삭제되었습니다'),
-                                    ),
-                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('리뷰가 삭제되었습니다'),
+                                      ),
+                                    );
 
-                                  // 리뷰 화면 닫고 도서 상세 화면으로 돌아가기
-                                  Navigator.of(context).pop();
+                                    // 리뷰 화면 닫고 도서 상세 화면으로 돌아가기
+                                    Navigator.of(context).pop();
+                                  }
                                 } catch (e) {
                                   print('리뷰 삭제 중 오류 발생: $e');
                                   // 오류 발생 시 메시지 표시
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(content: Text('오류가 발생했습니다: $e')),
-                                  );
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('오류가 발생했습니다: $e')),
+                                    );
+                                  }
                                 }
                               },
                               child: Text('삭제'),

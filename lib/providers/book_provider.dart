@@ -9,8 +9,6 @@ import 'package:books_room/models/book_request.dart';
 import 'package:books_room/models/book_response.dart';
 import 'package:books_room/services/cached_api_service.dart';
 
-import '../models/book_model.dart';
-
 class BookProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
   final CachedBestsellerService _cachedBestsellerService =

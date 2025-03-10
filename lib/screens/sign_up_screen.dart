@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import 'package:books_room/components/color.dart';
 import 'package:books_room/services/auth_service.dart';
@@ -53,11 +52,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
       );
 
       // 회원가입 성공 알림
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('회원가입에 성공했습니다. 로그인해주세요.')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('회원가입에 성공했습니다. 로그인해주세요.')));
 
-      Navigator.pop(context); // 성공하면 이전 화면으로 돌아가기
+        Navigator.pop(context); // 성공하면 이전 화면으로 돌아가기
+      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();

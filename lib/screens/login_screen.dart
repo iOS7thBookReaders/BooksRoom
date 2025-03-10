@@ -46,10 +46,12 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       // 로그인 성공시 루트탭으로 이동
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const RootTab()),
-      );
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const RootTab()),
+        );
+      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();

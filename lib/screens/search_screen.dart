@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

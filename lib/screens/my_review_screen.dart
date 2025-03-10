@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print
+
 import 'package:books_room/components/color.dart';
 import 'package:flutter/material.dart';
 
@@ -40,15 +42,18 @@ class _MyReviewScreenState extends State<MyReviewScreen> {
       await _reviewFirebaseService.updateBook(updatedBook);
 
       // 성공 메시지 표시
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('리뷰가 삭제되었습니다')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text('리뷰가 삭제되었습니다')));
+      }
     } catch (e) {
       print('리뷰 삭제 오류: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')));
-
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('삭제 중 오류가 발생했습니다: $e')));
+      }
       // 오류 발생 시 삭제한 항목 다시 추가 (UI 복원)
       setState(() {
         _items.add(book);

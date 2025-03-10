@@ -73,6 +73,8 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         );
       } else {
         // 저장된 책이 없으면 API에서 가져온 정보를 Firebase에 저장
+        if (!mounted) return;
+
         final bookProvider = Provider.of<BookProvider>(context, listen: false);
         final bookDetailData = bookProvider.bookDetailData;
 
@@ -133,9 +135,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       });
     } catch (e) {
       print('책 상태 업데이트 오류: $e');
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+      if (mounted) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('저장 중 오류가 발생했습니다')));
+      }
     } finally {
       setState(() {
         _isSaving = false;
@@ -165,9 +169,11 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
         if (_savedBookModel != null) {
           _navigateToReviewScreen();
         } else {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('책 정보를 저장할 수 없어 리뷰를 작성할 수 없습니다')),
-          );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('책 정보를 저장할 수 없어 리뷰를 작성할 수 없습니다')),
+            );
+          }
         }
       });
     }

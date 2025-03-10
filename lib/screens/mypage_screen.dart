@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_print
 
 import 'package:books_room/screens/my_review_screen.dart';
-import 'package:books_room/services/book_firebase_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:books_room/services/auth_service.dart';
@@ -170,9 +169,11 @@ class _MypageScreenState extends State<MypageScreen> {
             TextButton(
               onPressed: () async {
                 await CachedBestsellerService().clearCache();
-                ScaffoldMessenger.of(
-                  context,
-                ).showSnackBar(SnackBar(content: Text('캐시가 삭제되었습니다.')));
+                if (context.mounted) {
+                  ScaffoldMessenger.of(
+                    context,
+                  ).showSnackBar(SnackBar(content: Text('캐시가 삭제되었습니다.')));
+                }
               },
               child: const Text('캐시 삭제', style: TextStyle(color: GRAY500)),
             ),
