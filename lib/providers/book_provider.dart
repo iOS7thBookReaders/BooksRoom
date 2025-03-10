@@ -104,6 +104,7 @@ class BookProvider with ChangeNotifier {
     String query,
     String? queryType,
     String? sort,
+    int page,
   ) async {
     _isLoading = true;
     notifyListeners();
@@ -121,14 +122,25 @@ class BookProvider with ChangeNotifier {
           searchTarget: 'Book',
         ),
       );
-      if (response.items != null && response.items!.isNotEmpty) {
-        _bookSearchData = response;
+      // 응답에 아이템 없고 비어있으면 더 불러올 데이터가 없다는 거고
+      if (response.items == null || response.items!.isEmpty) {
+        hasMore = false;
       } else {
-        _bookSearchData = null;
+        // 응답에 아이템이 있으면 데이터가 더 있다는거
+        hasMore = true;
+        if (_bookSearchData == null) {
+          // 처음 fetch하는거면 당연히 베스트셀러 데이터가 비어있겠지
+          // 응답값을 넣어
+          _bookSearchData = response;
+        } else {
+          // 처음 fetch가 아니면 이미 items에 데이터가 있겠지 response.items 배열에 추가
+          _bookSearchData?.items!.addAll(response.items!);
+        }
+        // 추가되어서 데이터가 20 40 60 ... 이렇게 늘어나겠지
+        print(_bookSearchData?.items!.length);
+        _isLoading = false;
+        currentPage++;
       }
-      totalCount = response.totalResults;
-
-      _isLoading = false;
       notifyListeners();
       return _bookSearchData;
     } catch (e) {

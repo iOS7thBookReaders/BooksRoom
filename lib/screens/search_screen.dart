@@ -14,6 +14,8 @@ class SearchScreen extends StatefulWidget {
 
 class _SearchScreenState extends State<SearchScreen> {
   TextEditingController searchController = TextEditingController();
+  final ScrollController _paginationScrollController = ScrollController();
+
   String _currentQueryType = '키워드';
   final List<String> _queryTypeOptions = ['키워드', '제목', '저자', '출판사'];
   String _currentSort = '관련순';
@@ -24,9 +26,31 @@ class _SearchScreenState extends State<SearchScreen> {
   bool isLoading = false;
 
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _paginationScrollController.addListener(_onScrollPage);
+  }
+
+  void _onScrollPage() {
+    final bookProvider = Provider.of<BookProvider>(context, listen: false);
+
+    if (_paginationScrollController.position.pixels ==
+        _paginationScrollController.position.maxScrollExtent) {
+      print('페이지 끝');
+      print('💗Loading in scrollPage func $isLoading');
+      if (!bookProvider.isLoading && bookProvider.hasMore) {
+        bookProvider.fetchBookBestseller(bookProvider.currentPage);
+        print('💗Loading in scrollPage fetchBookBestseller func $isLoading');
+      }
+    }
+  }
+
+  @override
   void dispose() {
     super.dispose();
     searchController.dispose();
+    _paginationScrollController.dispose();
   }
 
   @override
@@ -187,7 +211,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   Provider.of<BookProvider>(
                     context,
                     listen: false,
-                  ).fetchSearchResult(query, queryType, sort);
+                  ).fetchSearchResult(query, queryType, sort, 1);
                 },
               ),
             ),
@@ -245,10 +269,20 @@ class _SearchScreenState extends State<SearchScreen> {
   Widget _buildSearchResult(BookProvider bookProvider) {
     return Expanded(
       child: ListView.builder(
+        controller: _paginationScrollController,
         itemCount: bookProvider.bookSearchData!.items!.length,
         itemBuilder: (context, index) {
-          return BookListCell(
-            bookItem: bookProvider.bookSearchData!.items![index],
+          return Column(
+            children: [
+              if (bookProvider.isLoading)
+                const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: CircularProgressIndicator(color: MAIN_COLOR),
+                ),
+              BookListCell(
+                bookItem: bookProvider.bookSearchData!.items![index],
+              ),
+            ],
           );
         },
       ),
