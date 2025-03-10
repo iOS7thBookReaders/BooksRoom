@@ -112,7 +112,16 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
               elevation: 0,
               scrolledUnderElevation: 0,
               backgroundColor: Colors.white,
-              title: innerBoxIsScrolled ? null : const Text('HomeScreen'),
+              title:
+                  innerBoxIsScrolled
+                      ? null
+                      : Text(
+                        '책방',
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 25,
+                        ),
+                      ),
               floating: true,
               snap: true,
               pinned: true,

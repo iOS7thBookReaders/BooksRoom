@@ -96,7 +96,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     Align(
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        'Create Account',
+                        '회원가입',
                         style: TextStyle(
                           fontSize: 30,
                           fontWeight: FontWeight.bold,

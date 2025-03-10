@@ -75,7 +75,10 @@ class _MypageScreenState extends State<MypageScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('마이페이지'),
+        title: const Text(
+          '마이페이지',
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
+        ),
         backgroundColor: Colors.white,
         elevation: 0,
         scrolledUnderElevation: 0,
