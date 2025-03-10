@@ -1,6 +1,6 @@
 <div align="center">
 
-![Image](https://github.com/user-attachments/assets/37b3a5a6-9626-4399-93af-901cb56ce0ed){: width="70" height="70"}
+![Image](https://github.com/user-attachments/assets/37b3a5a6-9626-4399-93af-901cb56ce0ed)
 
 # 책방
 <br/> [<img src="https://img.shields.io/badge/프로젝트 기간-2025.03.06~2025.03.10-fab2ac?style=flat&logo=&logoColor=white" />]()
