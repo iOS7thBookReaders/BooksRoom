@@ -7,11 +7,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:books_room/models/book_request.dart';
 import 'package:books_room/models/book_response.dart';
+import 'package:books_room/services/cached_api_service.dart';
 
 import '../models/book_model.dart';
 
 class BookProvider with ChangeNotifier {
   final ApiService _apiService = ApiService();
+  final CachedBestsellerService _cachedBestsellerService =
+      CachedBestsellerService();
+
   BookResponse? _booksBestsellerData;
   BookResponse? _bookDetailData;
   BookResponse? _bookSearchData;
@@ -51,7 +55,26 @@ class BookProvider with ChangeNotifier {
   Future<void> fetchBookBestseller() async {
     _isLoading = true;
     notifyListeners();
+
     try {
+      // 1. 먼저 캐시된 데이터가 오늘 날짜인지 확인
+      bool isTodaysCacheAvailable =
+          await _cachedBestsellerService.isCachedDataFromToday();
+
+      if (isTodaysCacheAvailable) {
+        // 2. 오늘 캐시된 데이터가 있으면 로드
+        print("오늘의 캐시된 베스트셀러 데이터를 사용합니다.");
+        final cachedData =
+            await _cachedBestsellerService.loadCachedBestseller();
+        if (cachedData != null) {
+          _booksBestsellerData = cachedData;
+          _isLoading = false;
+          notifyListeners();
+          return;
+        }
+      }
+
+      // 3. 캐시된 데이터가 없거나 오늘 날짜가 아니면 API 호출
       final response = await _apiService.fetchBookBestseller(
         BookRequestModel(
           ttbKey: API_KEY,
@@ -65,10 +88,27 @@ class BookProvider with ChangeNotifier {
       );
 
       _booksBestsellerData = response;
+
+      // 4. 성공적으로 받아온 데이터를 캐시에 저장
+      if (_booksBestsellerData != null && _booksBestsellerData!.items != null) {
+        await _cachedBestsellerService.cacheBestseller(_booksBestsellerData!);
+        print("베스트셀러 데이터를 캐시에 저장했습니다.");
+      }
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
-      print("Error fetching bestseller: $e");
+      print("Error fetching bestseller from API: $e");
+
+      // 5. API 호출 실패 시 가장 최근 캐시된 데이터 사용
+      final cachedData = await _cachedBestsellerService.loadCachedBestseller();
+      if (cachedData != null) {
+        print("API 호출 실패. 캐시된 베스트셀러 데이터를 사용합니다.");
+        _booksBestsellerData = cachedData;
+      } else {
+        print("캐시된 데이터도 없습니다. 오류 상태로 설정합니다.");
+      }
+
       _isLoading = false;
       notifyListeners();
     }
