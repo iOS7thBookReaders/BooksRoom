@@ -16,23 +16,23 @@
 ### 📷 스크린샷
 | 로그인 | 회원가입 |
 |:---:|:---:|
-| ![Image](https://github.com/user-attachments/assets/b158e2d8-aec1-4794-942f-ffdeca2ab505){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/5e4cde38-06ee-4760-abe1-a3d5e90f9a44){: width="200" height="420"} |
+| ![Image](https://github.com/user-attachments/assets/b158e2d8-aec1-4794-942f-ffdeca2ab505) | ![Image](https://github.com/user-attachments/assets/5e4cde38-06ee-4760-abe1-a3d5e90f9a44) |
 
 | 베스트셀러 | 읽는중인 책 | 찜한 책 |
 |:---:|:---:|:---:|
-| ![Image](https://github.com/user-attachments/assets/249505ac-9b11-454a-96bb-5b8a34d681e9){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/89170078-c9b9-4091-b88d-f57022302faf){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/bc37d9f1-339e-42ff-830f-c09476540cef){: width="200" height="420"} |
+| ![Image](https://github.com/user-attachments/assets/249505ac-9b11-454a-96bb-5b8a34d681e9) | ![Image](https://github.com/user-attachments/assets/89170078-c9b9-4091-b88d-f57022302faf) | ![Image](https://github.com/user-attachments/assets/bc37d9f1-339e-42ff-830f-c09476540cef) |
 
 | 검색 - 조건 | 조건 + 정렬 | 책 상세보기 |
 |:---:|:---:|:---:|
-| ![Image](https://github.com/user-attachments/assets/21f46fc3-f1f1-4966-9fa4-8462980e2c73){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/d2f168c4-e8c0-417d-ba18-65f77252b605){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/a9cc15c5-5145-451d-977c-864c3203458f){: width="200" height="420"} |
+| ![Image](https://github.com/user-attachments/assets/21f46fc3-f1f1-4966-9fa4-8462980e2c73) | ![Image](https://github.com/user-attachments/assets/d2f168c4-e8c0-417d-ba18-65f77252b605) | ![Image](https://github.com/user-attachments/assets/a9cc15c5-5145-451d-977c-864c3203458f) |
 
 | 리뷰작성 | 리뷰수정 | 리뷰보기 |
 |:---:|:---:|:---:|
-| ![Image](https://github.com/user-attachments/assets/61a889ce-5a25-4fea-befc-526c2a690f33){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/68f9a4fc-7d48-4ded-a498-2d104877bc95){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/dcd89986-9027-4f3f-a116-cc13c31c91a7){: width="200" height="420"} |
+| ![Image](https://github.com/user-attachments/assets/61a889ce-5a25-4fea-befc-526c2a690f33) | ![Image](https://github.com/user-attachments/assets/68f9a4fc-7d48-4ded-a498-2d104877bc95) | ![Image](https://github.com/user-attachments/assets/dcd89986-9027-4f3f-a116-cc13c31c91a7) |
 
 | 책 상세정보 | 캘린더 | 마이페이지 |
 |:---:|:---:|:---:|
-| ![Image](https://github.com/user-attachments/assets/99ed95cc-4bd7-46bc-985a-51d2d9969069){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/d62c11ab-1356-4935-90cf-7748c2413974){: width="200" height="420"} | ![Image](https://github.com/user-attachments/assets/3fe04a8f-6b44-48ad-9b20-ad2e37148575){: width="200" height="420"} |
+| ![Image](https://github.com/user-attachments/assets/99ed95cc-4bd7-46bc-985a-51d2d9969069) | ![Image](https://github.com/user-attachments/assets/4f46f086-70c5-4266-9a43-90e94e179b4d) | ![Image](https://github.com/user-attachments/assets/3fe04a8f-6b44-48ad-9b20-ad2e37148575) |
 
 
 <br />
