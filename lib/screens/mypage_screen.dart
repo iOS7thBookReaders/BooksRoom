@@ -1,16 +1,18 @@
 // ignore_for_file: avoid_print
 
-import 'package:books_room/screens/my_review_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:books_room/services/auth_service.dart';
-import 'package:books_room/screens/login_screen.dart';
 import 'package:books_room/components/color.dart';
 
 import '../components/format.dart';
 import '../models/book_model.dart';
 import '../services/review_firebase_service.dart';
 import '../services/cached_api_service.dart';
+import '../screens/my_wishing_screen.dart';
+import 'package:books_room/screens/my_review_screen.dart';
+import 'package:books_room/screens/my_reading_screen.dart';
+import 'package:books_room/screens/login_screen.dart';
 
 class MypageScreen extends StatefulWidget {
   const MypageScreen({super.key});
@@ -140,7 +142,7 @@ class _MypageScreenState extends State<MypageScreen> {
               child: Column(
                 children: [
                   ListTile(
-                    title: infoRow('독후감 작성', '${_reviewBooks.length} 건'),
+                    title: infoRow('독후감 작성', '${_reviewBooks.length} 권'),
                     trailing: Icon(
                       Icons.keyboard_arrow_right_sharp,
                       color: GRAY700,
@@ -161,8 +163,44 @@ class _MypageScreenState extends State<MypageScreen> {
                   ),
                   ListTile(
                     title: infoRow('읽는 중인 책', '${_readingBooks.length} 권'),
+                    trailing: Icon(
+                      Icons.keyboard_arrow_right_sharp,
+                      color: GRAY700,
+                    ),
+                    onTap: () {
+                      print('읽고 있는 책 목록');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => MyWishingScreen(
+                                title: '읽고 있는 책 목록',
+                                items: _readingBooks,
+                              ),
+                        ),
+                      );
+                    },
                   ),
-                  ListTile(title: infoRow('찜한 책', '${_wishingBooks.length} 권')),
+                  ListTile(
+                    title: infoRow('찜한 책', '${_wishingBooks.length} 권'),
+                    trailing: Icon(
+                      Icons.keyboard_arrow_right_sharp,
+                      color: GRAY700,
+                    ),
+                    onTap: () {
+                      print('찜한 책 목록');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => MyWishingScreen(
+                                title: '찜한 책 목록',
+                                items: _wishingBooks,
+                              ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
