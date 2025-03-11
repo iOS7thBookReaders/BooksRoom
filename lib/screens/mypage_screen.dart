@@ -173,7 +173,7 @@ class _MypageScreenState extends State<MypageScreen> {
                         context,
                         MaterialPageRoute(
                           builder:
-                              (context) => MyWishingScreen(
+                              (context) => MyReadingScreen(
                                 title: '읽고 있는 책 목록',
                                 items: _readingBooks,
                               ),
