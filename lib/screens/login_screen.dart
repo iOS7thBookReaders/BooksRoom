@@ -73,6 +73,17 @@ class _LoginScreenState extends State<LoginScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            // 로고 이미지
+            CircleAvatar(
+              radius: 50,
+              backgroundImage: AssetImage('assets/logo/logo_image.png'),
+            ),
+            SizedBox(height: 20),
+            Text(
+              '책방',
+              style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+            ),
+            SizedBox(height: 50),
             // 오류 메시지 표시
             if (_errorMessage != null)
               Container(
