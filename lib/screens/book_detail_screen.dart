@@ -371,6 +371,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           color: isWishing ? POINT_COLOR : GRAY500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
@@ -456,6 +457,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           color: isReviewed ? POINT_COLOR : GRAY500,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
