@@ -4,6 +4,8 @@ import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
+import 'key.dart';
+
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
 /// Example:
@@ -50,7 +52,7 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC1Uilh0KjduYFMD-Un55nA2OWzG7icViU',
+    apiKey: firebaseAndroidApiKey,
     appId: '1:1008839380170:android:c8f7a5e1d08df7f5ac3833',
     messagingSenderId: '1008839380170',
     projectId: 'booksroom-71a6c',
@@ -58,7 +60,7 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyDsoi23PxCGdMCNgmRBTj2SY6-MTNnNT3M',
+    apiKey: firebaseiOSApiKey,
     appId: '1:1008839380170:ios:a560d539a26be209ac3833',
     messagingSenderId: '1008839380170',
     projectId: 'booksroom-71a6c',
