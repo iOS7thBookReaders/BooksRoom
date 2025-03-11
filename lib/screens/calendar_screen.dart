@@ -266,10 +266,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         child: Text(
                           '${item.oneLineComment}',
                           style: const TextStyle(fontSize: 14),
-                          overflow: TextOverflow.ellipsis,
+                          //overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Spacer(),
+                      const SizedBox(width: 8),
                       Row(
                         children: [
                           for (int i = 0; i < 5; i++)
